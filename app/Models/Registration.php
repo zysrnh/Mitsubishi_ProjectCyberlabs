@@ -24,6 +24,7 @@ class Registration extends Model
 
     protected $appends = [
         'qr_path',
+        'qr_full_path',
     ];
 
     protected static function booted(): void
@@ -57,6 +58,13 @@ class Registration extends Model
     {
         return Attribute::make(
             get: fn() => asset('storage/qr_codes/' . $this->unique_code . '.png')
+        );
+    }
+
+    protected function qrFullPath(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => 'storage/qr_codes/' . $this->unique_code . '.png'
         );
     }
 
