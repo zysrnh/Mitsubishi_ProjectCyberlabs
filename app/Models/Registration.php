@@ -33,6 +33,12 @@ class Registration extends Model
                 $registration->unique_code = static::generateUniqueCode();
             }
         });
+
+        static::deleted(function (Registration $registration) {
+            $registration->seat->update(
+                ['registration_id' => null]
+            );
+        });
     }
 
     /**
