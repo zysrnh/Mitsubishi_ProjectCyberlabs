@@ -21,7 +21,7 @@ export default function SelectField({
       <label
         htmlFor={id || name}
         className={clsx(
-          "text-base font-semibold md:text-lg lg:text-xl",
+          "poppins text-base font-semibold md:text-lg lg:text-xl",
           {
             "text-gray-400": disabled,
             "text-red-600": error,
@@ -30,7 +30,7 @@ export default function SelectField({
         )}
       >
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="poppins text-red-500 ml-1">*</span>}
       </label>
       <select
         name={name}
@@ -40,7 +40,7 @@ export default function SelectField({
         required={required}
         disabled={disabled}
         className={clsx(
-          "py-2 px-4 text-base bg-gray-100 md:text-lg lg:text-xl lg:py-3 lg:px-5 rounded",
+          "poppins py-2 px-4 text-base text-black bg-gray-100 md:text-lg lg:text-xl lg:py-3 lg:px-5 rounded",
           "border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
           "transition-colors duration-200",
           {
@@ -53,7 +53,7 @@ export default function SelectField({
         )}
         {...selectProps}
       >
-        <option value="">--Pilih Event--</option>
+        <option className="poppins" value="">--Pilih Event--</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -61,7 +61,7 @@ export default function SelectField({
         ))}
       </select>
       {error && (
-        <span className="text-red-600 text-sm font-medium">{error}</span>
+        <span className="poppins text-red-600 text-sm font-medium">{error}</span>
       )}
     </div>
   );

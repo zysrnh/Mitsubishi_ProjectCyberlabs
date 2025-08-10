@@ -10,3 +10,31 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.poppins {
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cinzel {
+  font-family: "Cinzel", "Poppins", "Segoe UI", Tahoma, Geneva, Verdana,
+    sans-serif;
+}
+
+.welcome-bg-main {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
+}
+
+@media (min-width: 768px) {
+  .welcome-bg-main {
+    background-image: url('https://cl-molecule_alco_event-website.test/images/background-desktop.png');
+  }
+}
+
+@media (max-width: 767px) {
+  .welcome-bg-main {
+    background-image: url('https://cl-molecule_alco_event-website.test/images/background-mobile.png');
+  }
+}

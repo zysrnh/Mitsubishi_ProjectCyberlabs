@@ -5,7 +5,7 @@ export default function WizardStepButton({
   nextStep,
   handleSubmit,
   processing = false,
-  submitText = "Submit",
+  submitText = "Daftar",
   nextText = "Selanjutnya",
   prevText = "Kembali"
 }) {

@@ -9,7 +9,7 @@ import VolunteerStep5 from "./VolunteerRegistration/VolunteerStep5";
 import VolunteerStep6 from "./VolunteerRegistration/VolunteerStep6";
 import { useEffect, useState } from "react";
 
-export default function VolunteerRegistration({ events }) {
+export default function VolunteerRegistration({ events, images }) {
   const { flash } = usePage().props;
   const { data, setData, post, processing, errors, reset } = useForm({
     name: "",
@@ -74,16 +74,36 @@ export default function VolunteerRegistration({ events }) {
     <>
       <Head title="Register Volunteer" />
       <Toaster />
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
-            {/* Header */}
-            <div className="flex justify-between items-start mb-6">
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Registrasi Volunteer
-              </h1>
-            </div>
+      <div class="bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-between">
+        {/* Top Section  */}
+        <header class="flex justify-between items-center p-6">
+          <img
+            src={images["sby_art_white"]}
+            alt="SBY Logo"
+            class="h-20 md:h-30 object-contain"
+          />
+          <div class="flex space-x-4">
+            <img
+              src={images["ekraf_white"]}
+              alt="EKRAF Logo"
+              class="h-18 md:h-30 object-contain"
+            />
+            <img
+              src={images["kkri_white"]}
+              alt="KEMENBUD Logo"
+              class="h-18 md:h-30 object-contain"
+            />
+          </div>
+        </header>
 
+        {/* Form Section */}
+        <main class="flex flex-col items-center px-4">
+          <h1 class="cinzel text-2xl md:text-3xl font-bold text-center">
+            REGISTRASI
+          </h1>
+          <p class="cinzel text-lg md:text-xl mb-6 text-center">Volunteer</p>
+
+          <form className="w-full max-w-md space-y-4">
             <Wizard>
               <VolunteerStep1
                 data={data}
@@ -121,8 +141,13 @@ export default function VolunteerRegistration({ events }) {
                 setGoBackToFirstStep={setGoBackToFirstStep}
               />
             </Wizard>
-          </div>
-        </div>
+          </form>
+        </main>
+
+        {/* Footer  */}
+        <footer class="text-center text-xs text-gray-400 p-4">
+          Copyright © 2025 CyberLabs | Powered By Alco Media Indonesia
+        </footer>
       </div>
     </>
   );

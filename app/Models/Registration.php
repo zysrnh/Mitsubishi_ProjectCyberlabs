@@ -17,10 +17,13 @@ class Registration extends Model
         'unique_code',
         'has_attended',
         'is_approved',
+        'approved_at',
         'attended_at',
         'last_blasted_at',
         'last_successful_sent_at',
         'whatsapp_send_attempts',
+        'extras',
+        'event_id',
     ];
 
     protected $appends = [

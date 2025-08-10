@@ -31,10 +31,10 @@ export default function FileInputField({
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="poppins block text-sm font-medium text-white mb-2"
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="poppins text-red-500 ml-1">*</span>}
         </label>
       )}
 
@@ -46,7 +46,7 @@ export default function FileInputField({
         accept={accept}
         required={required}
         className={clsx(
-          "block w-full text-sm text-gray-500",
+          "poppins block w-full text-sm text-white",
           "file:mr-4 file:py-2 file:px-4",
           "file:rounded-md file:border-0",
           "file:text-sm file:font-medium",
@@ -61,12 +61,12 @@ export default function FileInputField({
       />
 
       {value && (
-        <p className="mt-1 text-sm text-green-600">
+        <p className="poppins mt-1 text-sm text-green-600">
           ✓ File selected: {value.name}
         </p>
       )}
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="poppins mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

@@ -1,77 +1,81 @@
-import { Head } from "@inertiajs/react";
-import { Toaster } from "react-hot-toast";
+import { Head, usePage } from "@inertiajs/react";
+import toast, { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
-export default function RegistrationSuccess({ registration, success_image }) {
+export default function RegistrationSAC({ images, qr_full_path }) {
+  const { flash } = usePage().props;
+  console.log(qr_full_path);
+
+  useEffect(() => {
+    if (!flash?.info) return;
+
+    const info = flash.info;
+
+    if (typeof info === "string") {
+      toast(info);
+    } else if (typeof info === "object") {
+      if (info.error) {
+        toast.error(info.error);
+      } else if (info.success) {
+        toast.success(info.success, {
+          duration: 12 * 1000,
+        });
+      } else if (info.info) {
+        toast.info(info.info);
+      } else if (info.warning) {
+        toast.warning(info.warning);
+      }
+    }
+  }, [flash?.info]);
+
   return (
     <>
-      <Head title="Register" />
+      <Head title="Registrasi SAC" />
       <Toaster />
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
-            {/* Header */}
-            <div className="flex justify-center items-start mb-1">
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Registrasi Berhasil
-              </h1>
-              {/* <DarkModeToggle
-                isDark={isDark}
-                onToggle={() => setIsDark(!isDark)}
-              /> */}
-            </div>
-
-            <div className="w-full flex flex-col justify-center items-center my-10">
-              <img
-                src={success_image}
-                alt="Success Image"
-                className="w-full sm:w-1/2 md:w-10/12 lg:w-9/12 h-auto"
-              />
-
-              <h2 className="text-2xl sm:text-2xl md:text-2xl lg:text-2xl font-semibold">
-                Data Anda
-              </h2>
-
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 md:justify-items-start gap-5 md:gap-3 my-6">
-                <div className="flex flex-col">
-                  <span className="text-lg text-gray-600 font-semibold">
-                    Nama
-                  </span>
-                  <span className="text-2xl font-semibold">{registration.name}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-lg text-gray-600 font-semibold">
-                    Email
-                  </span>
-                  <span className="text-2xl font-semibold">{registration.email}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-lg text-gray-600 font-semibold">
-                    Nomor Telepon (Whatsapp)
-                  </span>
-                  <span className="text-2xl font-semibold">{registration.phone}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-lg text-gray-600 font-semibold">
-                    Nomor Kursi
-                  </span>
-                  <span className="text-2xl text-blue-600 font-bold">
-                    {registration.seat.label}
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full mt-4">
-                <a
-                  href={route('user.registration')}
-                  type="button"
-                  className="block w-full px-6 py-2 font-semibold cursor-pointer text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                  <span className="w-full flex justify-center">Kembali ke registrasi</span>
-                </a>
-              </div>
-            </div>
+      <div className="welcome-bg-main bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-between">
+        {/* Top Section  */}
+        <header className="flex justify-between items-center p-6">
+          <img
+            src={images["sby_art_white"]}
+            alt="SBY Logo"
+            className="h-20 md:h-30 object-contain"
+          />
+          <div className="flex space-x-4">
+            <img
+              src={images["ekraf_white"]}
+              alt="EKRAF Logo"
+              className="h-18 md:h-30 object-contain"
+            />
+            <img
+              src={images["kkri_white"]}
+              alt="KEMENBUD Logo"
+              className="h-18 md:h-30 object-contain"
+            />
           </div>
-        </div>
+        </header>
+
+        {/* Form Section */}
+        <main className="flex flex-col items-center px-4">
+          <h1 className="cinzel text-2xl md:text-3xl font-bold text-center">
+            REGISTRASI
+          </h1>
+          <p className="cinzel text-lg md:text-xl mb-6 text-center">Berhasil!</p>
+
+          <form className="w-3/4 max-w-md space-y-4 mb-6">
+            <img
+              src={qr_full_path}
+              alt="QR Code"
+              className="w-full"
+            />
+          </form>
+
+          <p className="cinzel text-lg md:text-xl mb-6 text-center">Simpan QR Code ini!</p>
+        </main>
+
+        {/* Footer  */}
+        <footer className="text-center text-xs text-gray-400 p-4">
+          Copyright © 2025 CyberLabs | Powered By Alco Media Indonesia
+        </footer>
       </div>
     </>
   );

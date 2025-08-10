@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('has_attended')->default(false);
             $table->boolean('is_approved')->default(false);
             $table->timestamp('attended_at')->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->timestamp('last_blasted_at')->nullable();
             $table->timestamp('last_successful_sent_at')->nullable();
             $table->integer('whatsapp_send_attempts')->default(0);

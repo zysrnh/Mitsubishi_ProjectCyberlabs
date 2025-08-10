@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('organization')->nullable();
             $table->string('cv')->nullable();
             $table->foreignId('event_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('unique_code')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
