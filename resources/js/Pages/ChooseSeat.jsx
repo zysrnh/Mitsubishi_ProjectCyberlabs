@@ -7,16 +7,22 @@ export default function ChooseSeat({
   images,
   seatingType,
   seats,
+  tables,
   formData,
   maxColumnCount,
 }) {
   const { flash } = usePage().props;
   const [isGoingBack, setIsGoingBack] = useState(false);
+  const [localTables, setLocalTables] = useState(tables || []);
+
   const { data, setData, post, processing, errors } = useForm({
     seat: null,
     seat_id: null,
+    group_name: null,
+    type: seatingType,
   });
 
+  // Theater seat selection
   const chooseSeat = (seat) => {
     if (!seat.is_available) {
       toast.error("Kursi telah terisi");
@@ -26,13 +32,72 @@ export default function ChooseSeat({
     setData({
       seat: seat,
       seat_id: seat.id,
+      group_name: null,
+      type: seatingType,
+    });
+  };
+
+  // Table selection
+  const chooseTable = (table) => {
+    if (table.remaining <= 0) {
+      toast.error("Meja sudah penuh");
+      return;
+    }
+
+    // If same table is already selected, do nothing
+    if (data.group_name === table.group_name) {
+      return;
+    }
+
+    // Reset previous selection if any
+    if (data.group_name) {
+      setLocalTables((prev) =>
+        prev.map((t) =>
+          t.group_name === data.group_name
+            ? { ...t, remaining: t.remaining + 1 }
+            : t
+        )
+      );
+    }
+
+    // Update local state to show immediate feedback for new selection
+    setLocalTables((prev) =>
+      prev.map((t) =>
+        t.group_name === table.group_name
+          ? { ...t, remaining: t.remaining - 1 }
+          : t
+      )
+    );
+
+    setData({
+      seat: null,
+      seat_id: null,
+      group_name: table.group_name,
+      type: seatingType,
     });
   };
 
   const handleSubmit = () => {
-    post(route("sac_vip.choose_seat"), {
-      seat_id: data.seat.id,
-    });
+    if (seatingType === "theater") {
+      post(route("sac_vip.choose_seat"), {
+        seat_id: data.seat.id,
+        type: data.type,
+      });
+    } else {
+      post(
+        route("sac_vip.choose_seat"),
+        {
+          group_name: data.group_name,
+          type: data.type,
+        },
+        {
+          onError: (errors) => {
+            // Reset local table state if submission fails
+            setLocalTables(tables || []);
+          },
+        }
+      );
+    }
   };
 
   const goBack = () => {
@@ -50,6 +115,10 @@ export default function ChooseSeat({
     } else if (typeof info === "object") {
       if (info.error) {
         toast.error(info.error);
+        // Reset local state on error
+        if (info.table_full || info.seat_taken) {
+          setLocalTables(tables || []);
+        }
       } else if (info.success) {
         toast.success(info.success);
       } else if (info.info) {
@@ -58,7 +127,100 @@ export default function ChooseSeat({
         toast.warning(info.warning);
       }
     }
-  }, [flash?.info]);
+  }, [flash?.info, tables]);
+
+  const renderTheaterSeating = () => (
+    <div className="overflow-x-auto w-full max-w-3xl mb-6">
+      <div
+        className="grid gap-2"
+        style={{
+          gridTemplateColumns: `repeat(${maxColumnCount}, minmax(50px, 1fr))`,
+        }}
+      >
+        {seats.map((seat) => (
+          <button
+            key={seat.id}
+            onClick={() => chooseSeat(seat)}
+            style={{
+              gridColumnStart: seat.column,
+              gridRowStart: seat.row,
+            }}
+            className={`p-3 cursor-pointer rounded-md text-center flex justify-center items-center poppins text-sm font-medium
+              ${
+                seat.is_available
+                  ? data.seat?.id === seat.id
+                    ? "bg-blue-700 text-white"
+                    : "bg-gray-700 hover:bg-blue-600"
+                  : "bg-gray-500 text-gray-300 cursor-not-allowed"
+              }`}
+          >
+            {seat.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderTableSeating = () => (
+    <div className="w-full max-w-2xl mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {localTables.map((table) => (
+          <button
+            key={table.group_name}
+            onClick={() => chooseTable(table)}
+            className={`p-6 rounded-lg border-2 transition-all duration-200 ${
+              table.remaining <= 0
+                ? "bg-gray-600 border-gray-500 cursor-not-allowed opacity-50"
+                : data.group_name === table.group_name
+                ? "bg-blue-700 border-blue-500 text-white"
+                : "bg-gray-700 border-gray-600 hover:bg-blue-600 hover:border-blue-500"
+            }`}
+            disabled={table.remaining <= 0}
+          >
+            <div className="text-center">
+              <h3 className="poppins text-xl font-bold mb-2">
+                {table.group_name}
+              </h3>
+              <div className="poppins text-sm">
+                <p className="mb-1">
+                  <span className="font-semibold">{table.remaining}</span> kursi
+                  tersedia
+                </p>
+                <p className="text-gray-300">dari {table.total} kursi</p>
+              </div>
+              {table.remaining <= 0 && (
+                <p className="text-red-400 font-medium mt-2">PENUH</p>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const getSubmitButtonText = () => {
+    if (seatingType === "theater") {
+      return (
+        <>
+          Pilih Kursi <b className="ml-2">{data.seat?.label}</b>
+        </>
+      );
+    } else {
+      return (
+        <>
+          Pilih Meja <b className="ml-2">{data.group_name}</b>
+        </>
+      );
+    }
+  };
+
+  const canSubmit = () => {
+    if (seatingType === "theater") {
+      return data.seat?.id;
+    } else {
+      return data.group_name;
+    }
+  };
 
   return (
     <>
@@ -89,9 +251,9 @@ export default function ChooseSeat({
         {/* Main Content */}
         <main className="flex flex-col items-center px-4">
           <h1 className="cinzel text-2xl md:text-3xl font-bold text-center">
-            PILIH KURSI
+            {seatingType === "theater" ? "PILIH KURSI" : "PILIH MEJA"}
           </h1>
-          <p className="cinzel text-lg md:text-xl mb-6 text-center">
+          <p className="cinzel text-lg md:text-xl mb-6 text-center capitalize">
             {seatingType}
           </p>
 
@@ -147,39 +309,13 @@ export default function ChooseSeat({
             </button>
           </div>
 
-          {/* Seating Grid */}
-          <div className="overflow-x-auto w-full max-w-3xl mb-6">
-            <div
-              className="grid gap-2"
-              style={{
-                gridTemplateColumns: `repeat(${maxColumnCount}, minmax(50px, 1fr))`,
-              }}
-            >
-              {seats.map((seat) => (
-                <button
-                  key={seat.id}
-                  onClick={() => chooseSeat(seat)}
-                  style={{
-                    gridColumnStart: seat.column,
-                    gridRowStart: seat.row,
-                  }}
-                  className={`p-3 cursor-pointer rounded-md text-center flex justify-center items-center poppins text-sm font-medium
-                    ${
-                      seat.is_available
-                        ? data.seat?.id === seat.id
-                          ? "bg-blue-700 text-white"
-                          : "bg-gray-700 hover:bg-blue-600"
-                        : "bg-gray-500 text-gray-300 cursor-not-allowed"
-                    }`}
-                >
-                  {seat.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Seating/Table Selection */}
+          {seatingType === "theater"
+            ? renderTheaterSeating()
+            : renderTableSeating()}
 
           {/* Submit */}
-          {data.seat?.id && (
+          {canSubmit() && (
             <button
               type="button"
               onClick={handleSubmit}
@@ -188,11 +324,7 @@ export default function ChooseSeat({
                 processing ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {processing ? (
-                <LoadingSpinner />
-              ) : (
-                <>Pilih Kursi <b className="ml-2">{data.seat.label}</b></>
-              )}
+              {processing ? <LoadingSpinner /> : getSubmitButtonText()}
             </button>
           )}
         </main>

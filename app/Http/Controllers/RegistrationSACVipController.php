@@ -96,7 +96,38 @@ class RegistrationSACVipController extends Controller
             return redirect()->route('user.registration')->with('info', 'Harap isi form registrasi terlebih dahulu sebelum memilih kursi.');
         }
 
-        $seatingType = 'theater';
+        $seatingType = 'table'; // Switch between 'theater' and 'table'
+
+        if ($seatingType == 'table') {
+            // Group by table and calculate remaining seats
+            $tables = Seat::select('group_name')
+                ->selectRaw('COUNT(*) as total')
+                ->selectRaw('COUNT(CASE WHEN registration_id IS NULL THEN 1 END) as remaining')
+                ->where('type', $seatingType) // Add this filter if you have a type column
+                ->groupBy('group_name')
+                ->orderBy('group_name') // Add consistent ordering
+                ->get()
+                ->map(function ($table) {
+                    return [
+                        'group_name' => $table->group_name,
+                        'remaining' => $table->remaining,
+                        'total' => $table->total,
+                    ];
+                });
+
+            return Inertia::render('ChooseSeat', [
+                'seatingType' => 'table',
+                'tables' => $tables,
+                'formData' => $formData,
+                'images' => [
+                    'ekraf_white' => asset('images/ekraf-text-white.png'),
+                    'kkri_white' => asset('images/kkri-text-white.png'),
+                    'sby_art_white' => asset('images/sbyart-logo.png'),
+                ],
+            ]);
+        }
+
+        // Theater seating logic remains the same
         $seats = Seat::where('type', $seatingType)
             ->orderBy('row')
             ->orderBy('column')
@@ -125,28 +156,42 @@ class RegistrationSACVipController extends Controller
             return redirect()->route('sac_vip.registration')->with('info', 'Session expired. Please start registration again.');
         }
 
+        // Updated validation to handle both theater and table types
         $validated = $request->validate([
-            'seat_id' => 'required|exists:seats,id',
+            'seat_id' => 'nullable|exists:seats,id',
+            'group_name' => 'nullable|string',
+            'type' => 'required|string|in:theater,table',
         ]);
 
-        $registrationData = array_merge($formData, ['seat_id' => $validated['seat_id']]);
+        $registrationData = array_merge($formData, [
+            'seat_id' => $validated['seat_id'] ?? null
+        ]);
 
         try {
             $registration = DB::transaction(function () use ($validated, $registrationData) {
-                // Lock the specific seat row to prevent race conditions
-                $seat = Seat::where('id', $validated['seat_id'])
-                    ->where('type', $formData['seat_type'] ?? 'theater')
-                    ->lockForUpdate()
-                    ->first();
+                if ($validated['type'] === 'theater') {
+                    // Lock & assign specific seat
+                    $seat = Seat::where('id', $validated['seat_id'])
+                        ->lockForUpdate()
+                        ->first();
 
-                // Check if seat exists
-                if (!$seat) {
-                    throw new \Exception('Seat not found');
-                }
+                    if (!$seat || $seat->registration_id) {
+                        throw new \Exception('seat_taken');
+                    }
+                } else {
+                    // Table type: Lock & assign first available seat in the table
+                    $seat = Seat::where('group_name', $validated['group_name'])
+                        ->whereNull('registration_id')
+                        ->orderBy('id') // or orderBy('seat_number') for lowest seat number first
+                        ->lockForUpdate()
+                        ->first();
 
-                // Check if seat is still available
-                if ($seat->registration_id !== null) {
-                    throw new \Exception('seat_taken');
+                    if (!$seat) {
+                        throw new \Exception('table_full');
+                    }
+
+                    // Update registration data with the actual seat_id
+                    $registrationData['seat_id'] = $seat->id;
                 }
 
                 $registration = Registration::create($registrationData);
@@ -178,11 +223,19 @@ class RegistrationSACVipController extends Controller
                 ]);
             }
 
+            if ($e->getMessage() === 'table_full') {
+                return redirect()->route('sac_vip.choose_seat')->with('info', [
+                    'error' => 'Sorry, this table is now full. Please choose a different table.',
+                    'table_full' => true
+                ]);
+            }
+
             // Log the error for debugging
             Log::error('Registration failed', [
                 'error' => $e->getMessage(),
                 'user_data' => $formData,
-                'seat_id' => $validated['seat_id']
+                'seat_id' => $validated['seat_id'] ?? null,
+                'group_name' => $validated['group_name'] ?? null
             ]);
 
             return redirect()->route('sac_vip.choose_seat')->with('info', [
