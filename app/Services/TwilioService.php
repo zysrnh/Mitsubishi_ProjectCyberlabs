@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EventName;
 use App\Exceptions\TwilioConfigurationException;
 use App\Exceptions\TwilioMessageException;
 use App\Models\Registration;
@@ -30,16 +31,30 @@ class TwilioService
         string $recipientNumber,
         string $filename,
         Registration $registration,
+        ?bool $isVip = false,
         ?string $contentSid = null,
-        ?string $messagingServiceSid = null
+        ?string $messagingServiceSid = null,
     ): MessageInstance {
         $contentSid = $contentSid ?? config('twilio.default_content_sid');
         $messagingServiceSid = $messagingServiceSid ?? config('twilio.messaging_service_sid');
 
         try {
+            $eventName = match ($registration->extras['event_name']) {
+                EventName::EXHIBITION->value => 'Pameran',
+                EventName::OPENING_CEREMONY->value => 'Opening Ceremony',
+                EventName::PRESS_CONFERENCE->value => 'Press Conference',
+                default => '-',
+            };
+            $contentVariables = [];
+            if ($isVip) {
+                $contentVariables = $this->buildVipContentVariables($filename, $eventName, $registration->seat->label ?? '-');
+            } else {
+                $contentVariables = $this->buildContentVariables($filename, $eventName);
+            }
+
             $messageInstance = $this->sendMessage($recipientNumber, [
                 'contentSid' => $contentSid,
-                'contentVariables' => $this->buildContentVariables($filename),
+                'contentVariables' => $contentVariables,
                 'messagingServiceSid' => $messagingServiceSid,
             ]);
 
@@ -89,10 +104,20 @@ class TwilioService
         );
     }
 
-    private function buildContentVariables(string $filename): string
+    private function buildContentVariables(string $filename, string $eventName): string
     {
         return json_encode([
             '1' => $filename,
+            '2' => $eventName,
+        ]);
+    }
+
+    private function buildVipContentVariables(string $filename, string $eventName, string $seat): string
+    {
+        return json_encode([
+            '1' => $filename,
+            '2' => $eventName,
+            '3' => $seat,
         ]);
     }
 

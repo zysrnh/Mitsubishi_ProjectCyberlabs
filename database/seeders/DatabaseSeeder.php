@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $admin = User::firstOrCreate(
-            ['email' => 'super-admin@alco.cyberlabs.co.id'],
+            ['email' => 'super-admin@alcomedia.id'],
             [
                 'name' => 'Super Admin',
                 'password' => '4Lc0@dm1nistrat0r0917',

@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\RegistrationResource;
 use App\Models\Seat;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 
 class EditRegistration extends EditRecord
 {
@@ -40,13 +41,29 @@ class EditRegistration extends EditRecord
 
         if (!$this->record) return;
 
-        Seat::where('registration_id', $this->record->id)
-            ->update(['registration_id' => null]);
+        DB::transaction(function () use ($seatId) {
+            // Always free old seat first
+            Seat::where('registration_id', $this->record->id)
+                ->lockForUpdate()
+                ->update(['registration_id' => null]);
 
-        if ($seatId) {
-            // Assign selected seat
-            Seat::where('id', $seatId)
-                ->update(['registration_id' => $this->record->id]);
-        }
+            if ($seatId) {
+                // Then assign new seat
+                Seat::where('id', $seatId)
+                    ->lockForUpdate()
+                    ->update([
+                        'registration_id' => $this->record->id,
+                    ]);
+            }
+
+            $extras = $this->record->extras ?? [];
+
+            $extras['job_title'] = $this->form->getState()['job_title'] ?? null;
+            $extras['organization'] = $this->form->getState()['organization'] ?? null;
+
+            $this->record->updateQuietly([
+                'extras' => $extras,
+            ]);
+        });
     }
 }

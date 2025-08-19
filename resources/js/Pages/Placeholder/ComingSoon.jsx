@@ -1,6 +1,4 @@
-import { useState } from "react";
-
-export default function RegistrationWelcome({ images }) {
+export default function ComingSoon({ images }) {
   return (
     <>
       <div className="welcome-bg-main min-h-screen flex flex-col justify-between text-white">
@@ -28,12 +26,14 @@ export default function RegistrationWelcome({ images }) {
 
         <div className="w-full flex justify-center">
           <main className="flex flex-col items-center px-4 text-center gap-4 max-w-3xl">
-            <h1 className="cinzel text-4xl md:text-5xl font-bold">
-              Mohon Maaf Pendaftaran Telah Ditutup Karena Melebihi Kapasitas
+            <h1 className="cinzel text-3xl md:text-4xl font-bold">
+              Coming Soon
             </h1>
-            <p className="cinzel text-3xl md:text-4xl mb-8">
-              Terima Kasih Atas Partisipasi Anda
-            </p>
+            <img
+              src={images["alco_white"]}
+              alt="Alco Media Convex"
+              className="h-35 md:h-40 object-contain"
+            />
           </main>
         </div>
 

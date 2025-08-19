@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Registration;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class RegistrationSuccessController extends Controller
+class ComingSoonController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request, Registration $registration)
+    public function __invoke(Request $request)
     {
-        return Inertia::render('RegistrationSuccess', [
-            'is_approved' => $registration->is_approved,
-            'qr_full_path' => $registration->qr_path ?? '',
+        return Inertia::render('Placeholder/ComingSoon', [
             'images' => [
                 'ekraf_white' => asset('images/ekraf-text-white.png'),
                 'kkri_white' => asset('images/kkri-text-white.png'),
                 'sby_art_white' => asset('images/sbyart-logo.png'),
+                'alco_white' => asset('images/Logo-Alco_white.png'),
             ],
         ]);
     }

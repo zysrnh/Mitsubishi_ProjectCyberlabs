@@ -146,7 +146,7 @@ export default function VolunteerRegistration({ events, images }) {
 
         {/* Footer  */}
         <footer class="text-center text-xs text-gray-400 p-4">
-          Copyright © 2025 CyberLabs | Powered By Alco Media Indonesia
+          Copyright © 2025 Alcomedia.id | Powered By Alco Media Indonesia
         </footer>
       </div>
     </>

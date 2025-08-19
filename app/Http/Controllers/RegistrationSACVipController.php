@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventName;
 use App\Jobs\GenerateQr;
 use App\Models\Event;
 use App\Models\Registration;
@@ -14,11 +15,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
+// Opening Ceremony
 class RegistrationSACVipController extends Controller
 {
     public function showWelcome(RegistrationSettings $registrationSettings)
     {
-        $count = Registration::where('extras->type', 'vip')->count();
+        $count = Registration::where('extras->type', 'vip')
+            ->where('extras->event_name', EventName::OPENING_CEREMONY->value)
+            ->count();
+
         if ($registrationSettings->vip_limit >= 0 && $count >= $registrationSettings->vip_limit) {
             return redirect()->route('full_registration');
         }
@@ -56,10 +61,11 @@ class RegistrationSACVipController extends Controller
         ]);
 
         $registrationData = array_merge($validated, [
-            'is_approved' => true,
+            'is_approved' => false,
             'approved_at' => now(),
             'event_id' => Event::where('name', 'SBY Art Community')->first()->id,
             'extras' => [
+                EventName::OPENING_CEREMONY->value,
                 'type' => 'vip',
                 'is_vip' => true,
                 'is_pers' => false,
@@ -93,7 +99,7 @@ class RegistrationSACVipController extends Controller
 
         if (!$formData) {
             // If user skipped step 1, send back to registration
-            return redirect()->route('user.registration')->with('info', 'Harap isi form registrasi terlebih dahulu sebelum memilih kursi.');
+            return redirect()->route('sac_vip.registration')->with('info', 'Harap isi form registrasi terlebih dahulu sebelum memilih kursi.');
         }
 
         $seatingType = 'theater'; // Switch between 'theater' and 'table'
@@ -153,7 +159,7 @@ class RegistrationSACVipController extends Controller
 
         if (!$formData) {
             // If user skipped step 1, send back to registration
-            return redirect()->route('sac_vip.registration')->with('info', 'Session expired. Please start registration again.');
+            return redirect()->route('sac_vip.registration')->with('info', 'Sesi Kadaluarsa. Harap mengulangi registrasi kembali.');
         }
 
         // Updated validation to handle both theater and table types
@@ -196,11 +202,6 @@ class RegistrationSACVipController extends Controller
 
                 $registration = Registration::create($registrationData);
                 $seat->update(['registration_id' => $registration->id]);
-
-                GenerateQr::dispatchSync($registration);
-                // Bus::chain([
-                //     new SendQrToWhatsapp($registration),
-                // ])->dispatch();
 
                 return $registration;
             });

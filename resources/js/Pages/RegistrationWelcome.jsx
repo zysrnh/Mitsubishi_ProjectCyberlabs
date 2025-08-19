@@ -1,3 +1,4 @@
+import { Head } from "@inertiajs/react";
 import { useState } from "react";
 
 export default function RegistrationWelcome({ images, redirectTo }) {
@@ -8,6 +9,7 @@ export default function RegistrationWelcome({ images, redirectTo }) {
   };
   return (
     <>
+      <Head title="Alcomedia - SBY Art Community" />
       <div className="welcome-bg-main min-h-screen flex flex-col justify-between text-white">
         <header className="flex flex-col justify-center items-center p-5 gap-8">
           <img
@@ -72,7 +74,7 @@ export default function RegistrationWelcome({ images, redirectTo }) {
         </main>
 
         <footer className="text-center text-xs text-gray-300 p-4">
-          Copyright © 2025 CyberLabs | Powered By Alco Media Indonesia
+          Copyright © 2025 Alcomedia.id | Powered By Alco Media Indonesia
         </footer>
       </div>
     </>

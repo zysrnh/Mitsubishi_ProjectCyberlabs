@@ -4,6 +4,9 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\RegistrationResource\Pages;
 use App\Filament\Admin\Resources\RegistrationResource\RelationManagers;
+use App\Jobs\GenerateQr;
+use App\Jobs\SendQrToEmail;
+use App\Jobs\SendQrToWhatsapp;
 use App\Models\Registration;
 use App\Models\Seat;
 use Carbon\Carbon;
@@ -26,6 +29,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Bus;
 
 class RegistrationResource extends Resource
 {
@@ -49,22 +53,38 @@ class RegistrationResource extends Resource
                     ->label('Email')
                     ->required()
                     ->email(),
+                TextInput::make('job_title')
+                    ->label('Pekerjaan')
+                    ->afterStateHydrated(fn($set, $record) => $set('job_title', $record->extras['job_title'] ?? null)),
+                TextInput::make('organization')
+                    ->label('Institusi/Media')
+                    ->afterStateHydrated(fn($set, $record) => $set('organization', $record->extras['organization'] ?? null)),
                 Select::make('seat_id')
                     ->label('Seat Assignment')
                     ->options(function ($get, $record) {
                         return Seat::query()
-                            ->where(function ($query) use ($record) {
-                                $query->whereNull('registration_id');
+                            ->where(function ($q) use ($record) {
+                                $q->whereNull('registration_id');
 
                                 if ($record) {
-                                    $query->orWhere('registration_id', $record->id);
+                                    // also allow the seat already assigned to this registration
+                                    $q->orWhere('registration_id', $record->id);
                                 }
                             })
+                            ->orderBy('id')        // optional, but keeps things stable
                             ->pluck('label', 'id');
                     })
                     ->searchable()
                     ->preload()
                     ->nullable()
+                    ->dehydrated(true) // <— don't write seat_id to registrations table
+                    ->afterStateHydrated(function ($set, $record) {
+                        if ($record) {
+                            // Preselect currently assigned seat
+                            $currentSeatId = Seat::where('registration_id', $record->id)->value('id');
+                            $set('seat_id', $currentSeatId);
+                        }
+                    }),
             ]);
     }
 
@@ -81,22 +101,27 @@ class RegistrationResource extends Resource
                     ->toggleable(),
                 TextColumn::make('extras_type')
                     ->label('Tipe')
-                    ->getStateUsing(fn($record) => $record->extras['type'] ?? '-')
+                    ->getStateUsing(fn($record) => match ($record->extras['type']) {
+                        'regular' => 'Umum',
+                        'vip' => 'VIP',
+                        'pers' => 'Pers',
+                        default => '-',
+                    })
                     ->toggleable(),
                 IconColumn::make('is_approved_display')
                     ->label('Approved')
                     ->boolean()
                     ->getStateUsing(fn($record) => $record->is_approved)
                     ->toggleable(),
-                ToggleColumn::make('is_approved')
-                    ->label('Ubah Approval')
-                    ->afterStateUpdated(function (bool $state, $record) {
-                        $record->update([
-                            'approved_at' => $state ? now() : null,
-                        ]);
-                    })
-                    ->visible(fn() => auth()->user()->can('update_registration'))
-                    ->toggleable(),
+                // ToggleColumn::make('is_approved')
+                //     ->label('Ubah Approval')
+                //     ->afterStateUpdated(function (bool $state, $record) {
+                //         $record->update([
+                //             'approved_at' => $state ? now() : null,
+                //         ]);
+                //     })
+                //     ->visible(fn() => auth()->user()->can('update_registration'))
+                //     ->toggleable(),
                 IconColumn::make('has_attended_display')
                     ->label('Telah Hadir')
                     ->boolean()
@@ -200,7 +225,24 @@ class RegistrationResource extends Resource
                     ->label('Preview')
                     ->icon('heroicon-s-qr-code')
                     ->url(fn(Registration $record) => $record->qr_path)
-                    ->openUrlInNewTab()
+                    ->openUrlInNewTab(),
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-s-check-badge')
+                    ->visible(fn($record) => ! $record->is_approved)
+                    ->requiresConfirmation()
+                    ->modalHeading('Setujui Registrasi Ini?')
+                    ->modalDescription('Yang bersangkutan akan dikirim email dan whatsapp konfirmasi. Apakah anda yakin?')
+                    ->modalSubmitActionLabel('Ya, Setujui')
+                    ->action(function ($record) {
+                        $record->update(['is_approved' => true]);
+
+                        Bus::chain([
+                            new GenerateQr($record),
+                            new SendQrToEmail($record),
+                            new SendQrToWhatsapp($record),
+                        ])->dispatch();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

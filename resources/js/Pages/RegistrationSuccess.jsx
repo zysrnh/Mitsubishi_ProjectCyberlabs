@@ -2,7 +2,36 @@ import { Head, usePage } from "@inertiajs/react";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 
-export default function RegistrationSAC({ images, qr_full_path }) {
+const QrCode = ({ qrPath }) => {
+  return (
+    <>
+      <form className="w-3/4 max-w-md space-y-4 mb-6">
+        <img src={qrPath} alt="QR Code" className="w-full" />
+      </form>
+
+      <p className="cinzel text-lg md:text-xl mb-6 text-center">
+        Simpan QR Code ini!
+      </p>
+    </>
+  );
+};
+
+const SuccessMessage = () => {
+  return (
+    <>
+      <p className="cinzel text-xl md:text-2xl font-bold text-center">
+        Menunggu Approval Pendaftaran.
+      </p>
+
+      <p className="cinzel text-lg md:text-xl mb-6 text-center">
+        Kami akan mengirim konfirmasi pendaftaran melalui email dan Whatsapp
+        Anda.
+      </p>
+    </>
+  );
+};
+
+export default function RegistrationSAC({ is_approved, images, qr_full_path }) {
   const { flash } = usePage().props;
   console.log(qr_full_path);
 
@@ -30,7 +59,7 @@ export default function RegistrationSAC({ images, qr_full_path }) {
 
   return (
     <>
-      <Head title="Registrasi SAC" />
+      <Head title="Alcomedia - SBY Art Community" />
       <Toaster />
       <div className="welcome-bg-main bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-between">
         {/* Top Section  */}
@@ -59,22 +88,16 @@ export default function RegistrationSAC({ images, qr_full_path }) {
           <h1 className="cinzel text-2xl md:text-3xl font-bold text-center">
             REGISTRASI
           </h1>
-          <p className="cinzel text-lg md:text-xl mb-6 text-center">Berhasil!</p>
-
-          <form className="w-3/4 max-w-md space-y-4 mb-6">
-            <img
-              src={qr_full_path}
-              alt="QR Code"
-              className="w-full"
-            />
-          </form>
-
-          <p className="cinzel text-lg md:text-xl mb-6 text-center">Simpan QR Code ini!</p>
+          <p className="cinzel text-lg md:text-xl mb-6 text-center">
+            Berhasil!
+          </p>
+          
+          {is_approved ? <QrCode qrPath={qr_full_path} /> : <SuccessMessage />}
         </main>
 
         {/* Footer  */}
         <footer className="text-center text-xs text-gray-400 p-4">
-          Copyright © 2025 CyberLabs | Powered By Alco Media Indonesia
+          Copyright © 2025 Alcomedia.id | Powered By Alco Media Indonesia
         </footer>
       </div>
     </>

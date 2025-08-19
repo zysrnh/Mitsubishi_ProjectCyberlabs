@@ -2,20 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventName;
 use App\Jobs\GenerateQr;
+use App\Jobs\SendQrToEmail;
+use App\Jobs\SendQrToWhatsapp;
+use App\Mail\QrConfirmationMail;
 use App\Models\Event;
 use App\Models\Registration;
 use App\Settings\RegistrationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
+// Exhibition
 class RegistrationSACController extends Controller
 {
     public function showWelcome(RegistrationSettings $registrationSettings)
     {
-        $count = Registration::where('extras->type', 'regular')->count();
+        $count = Registration::where('extras->type', 'regular')
+            ->where('extras->event_name', EventName::EXHIBITION->value)
+            ->count();
         if ($registrationSettings->regular_limit >= 0 && $count >= $registrationSettings->regular_limit) {
             return redirect()->route('full_registration');
         }
@@ -56,6 +64,7 @@ class RegistrationSACController extends Controller
             'approved_at' => now(),
             'event_id' => Event::where('name', 'SBY Art Community')->first()->id,
             'extras' => [
+                'event_name' => EventName::EXHIBITION->value,
                 'type' => 'regular',
                 'is_vip' => false,
                 'is_pers' => false,
@@ -65,9 +74,10 @@ class RegistrationSACController extends Controller
         ]));
 
         GenerateQr::dispatchSync($registration);
-        // Bus::chain([
-        //     new SendQrToWhatsapp($registration),
-        // ])->dispatch()
+        Bus::chain([
+            new SendQrToEmail($registration),
+            new SendQrToWhatsapp($registration),
+        ])->dispatch();
 
         $signedUrl = URL::temporarySignedRoute(
             'registration_success',

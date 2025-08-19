@@ -12,21 +12,21 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
-// Opening Ceremony
-class RegistrationSACPersController extends Controller
+// Press Conference
+class RegistrationSACPersConferenceController extends Controller
 {
     public function showWelcome(RegistrationSettings $registrationSettings)
     {
         $count = Registration::where('extras->type', 'pers')
-            ->where('extras->event_name', EventName::OPENING_CEREMONY->value)
+            ->where('extras->event_name', EventName::PRESS_CONFERENCE->value)
             ->count();
-
+            
         if ($registrationSettings->pers_limit >= 0 && $count >= $registrationSettings->pers_limit) {
             return redirect()->route('full_registration');
         }
 
         return Inertia::render('RegistrationWelcome', [
-            'redirectTo' => route('sac_pers.registration'),
+            'redirectTo' => route('sac_pers.press.registration'),
             'images' => [
                 'ekraf_white' => asset('images/ekraf-text-white.png'),
                 'kkri_white' => asset('images/kkri-text-white.png'),
@@ -37,7 +37,7 @@ class RegistrationSACPersController extends Controller
 
     public function showForm()
     {
-        return Inertia::render('RegistrationSACPers', [
+        return Inertia::render('RegistrationSACPersConference', [
             'images' => [
                 'ekraf_white' => asset('images/ekraf-text-white.png'),
                 'kkri_white' => asset('images/kkri-text-white.png'),
@@ -60,7 +60,7 @@ class RegistrationSACPersController extends Controller
             'is_approved' => false,
             'event_id' => Event::where('name', 'SBY Art Community')->first()->id,
             'extras' => [
-                'event_name' => EventName::OPENING_CEREMONY->value,
+                'event_name' => EventName::PRESS_CONFERENCE->value,
                 'type' => 'pers',
                 'is_vip' => false,
                 'is_pers' => true,
@@ -71,12 +71,12 @@ class RegistrationSACPersController extends Controller
 
         $signedUrl = URL::temporarySignedRoute(
             'registration_success',
-            now()->addHour(),
+            now()->addHour(),      
             ['registration' => $registration->id]
         );
 
         return redirect($signedUrl)->with('info', [
-            'success' =>  'Berhasil mendaftar sebagai SAC Pers',
+            'success' =>  'Berhasil mendaftar untuk pers conference',
         ]);
     }
 }

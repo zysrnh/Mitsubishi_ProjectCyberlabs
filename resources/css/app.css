@@ -29,14 +29,14 @@
 
 @media (min-width: 768px) {
   .welcome-bg-main {
-    background-image: url('https://alco.cyberlabs.co.id/images/background-desktop.png');
+    background-image: url('https://alcomedia.id/images/background-desktop.png');
     /* background-image: url('https://cl-molecule_alco_event-website.test/images/background-desktop.png'); */
   }
 }
 
 @media (max-width: 767px) {
   .welcome-bg-main {
-    background-image: url('https://alco.cyberlabs.co.id/images/background-mobile.png');
+    background-image: url('https://alcomedia.id/images/background-mobile.png');
     /* background-image: url('https://cl-molecule_alco_event-website.test/images/background-mobile.png'); */
   }
 }

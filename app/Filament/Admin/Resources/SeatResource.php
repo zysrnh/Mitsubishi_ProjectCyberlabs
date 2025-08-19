@@ -53,6 +53,7 @@ class SeatResource extends Resource
             ])
             ->headerActions([
                 Action::make('generateSeats')
+                    ->modalDescription('⚠️Tindakan ini akan menghapus semua kursi yang sudah ada untuk tipe yang dipilih dan membuat kursi baru. Aksi ini tidak dapat dibatalkan.')
                     ->form([
                         Select::make('type')->options([
                             'theater' => 'Theater',
@@ -102,7 +103,7 @@ class SeatResource extends Resource
                         }
                     })
                     ->icon('heroicon-o-plus')
-                    ->color('success'),
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

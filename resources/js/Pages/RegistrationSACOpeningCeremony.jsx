@@ -4,7 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import z from "zod";
 
-export default function RegistrationSAC({ images }) {
+export default function RegistrationSACOpeningCeremony({ images }) {
   const { flash } = usePage().props;
   const { data, setData, post, processing, errors, reset, setError } = useForm({
     name: "",
@@ -47,7 +47,7 @@ export default function RegistrationSAC({ images }) {
     }
 
     setError({});
-    post(route("sac.submit_registration"), {
+    post(route("sac.opening.submit_registration"), {
       onSuccess: (page) => {
         reset();
         setData({
@@ -87,7 +87,7 @@ export default function RegistrationSAC({ images }) {
 
   return (
     <>
-      <Head title="Registrasi SAC" />
+      <Head title="Registrasi SAC Opening Ceremony" />
       <Toaster />
       <div className="bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-between">
         {/* Top Section  */}
@@ -116,7 +116,7 @@ export default function RegistrationSAC({ images }) {
           <h1 className="cinzel text-2xl md:text-3xl font-bold text-center">
             REGISTRASI
           </h1>
-          <p className="cinzel text-lg md:text-xl mb-6 text-center">PAMERAN SAC</p>
+          <p className="cinzel text-lg md:text-xl mb-6 text-center">OPENING CEREMONY SAC</p>
 
           <form className="w-full max-w-md space-y-4">
             <div>
