@@ -23,6 +23,7 @@ class SeatResource extends Resource
     protected static ?string $model = Seat::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-map-pin';
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {

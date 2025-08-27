@@ -41,9 +41,8 @@ class QrConfirmationMail extends Mailable
             with: [
                 'registration' => $this->registration,
                 'event_name' => match ($this->registration->extras['event_name']) {
-                    EventName::EXHIBITION->value => 'Pameran',
-                    EventName::OPENING_CEREMONY->value => 'Opening Ceremony',
-                    EventName::PRESS_CONFERENCE->value => 'Press Conference',
+                    EventName::SEMINAR->value => 'Seminar',
+                    EventName::INAUGURATION->value => 'Pelantikan',
                     default => '-',
                 }
             ]

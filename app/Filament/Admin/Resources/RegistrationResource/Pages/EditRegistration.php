@@ -37,33 +37,12 @@ class EditRegistration extends EditRecord
 
     protected function afterSave(): void
     {
-        $seatId = $this->form->getState()['seat_id'];
+        $extras = $this->record->extras ?? [];
 
-        if (!$this->record) return;
+        $extras['organization'] = $this->form->getState()['organization'] ?? null;
 
-        DB::transaction(function () use ($seatId) {
-            // Always free old seat first
-            Seat::where('registration_id', $this->record->id)
-                ->lockForUpdate()
-                ->update(['registration_id' => null]);
-
-            if ($seatId) {
-                // Then assign new seat
-                Seat::where('id', $seatId)
-                    ->lockForUpdate()
-                    ->update([
-                        'registration_id' => $this->record->id,
-                    ]);
-            }
-
-            $extras = $this->record->extras ?? [];
-
-            $extras['job_title'] = $this->form->getState()['job_title'] ?? null;
-            $extras['organization'] = $this->form->getState()['organization'] ?? null;
-
-            $this->record->updateQuietly([
-                'extras' => $extras,
-            ]);
-        });
+        $this->record->updateQuietly([
+            'extras' => $extras,
+        ]);
     }
 }

@@ -23,6 +23,7 @@ class VolunteerResource extends Resource
     protected static ?string $model = Volunteer::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-users';
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {

@@ -25,23 +25,10 @@ class SendQrToWhatsapp implements ShouldQueue
         $messagingService = app(MessagingService::class);
         $recipientNumber = $messagingService->parseTelToInternational($this->registration->phone);
 
-        $isVip = $this->registration->extras['is_vip'] ?? false;
-        if ($isVip) {
-            $vipTemplateSid = 'HXe22b839928d408983a975d7f03f58016';
-
-            app(TwilioService::class)->sendMessageWithImage(
-                $recipientNumber,
-                $this->registration->qr_full_path,
-                $this->registration,
-                $isVip,
-                $vipTemplateSid
-            );
-        } else {
-            app(TwilioService::class)->sendMessageWithImage(
-                $recipientNumber,
-                $this->registration->qr_full_path,
-                $this->registration,
-            );
-        }
+        app(TwilioService::class)->sendMessageWithImage(
+            $recipientNumber,
+            $this->registration->qr_full_path,
+            $this->registration,
+        );
     }
 }

@@ -13,22 +13,12 @@ class ScanController extends Controller
         // Validate request
         $validated = $request->validate([
             'unique_code' => 'required|string',
-            'is_vip'      => 'nullable|boolean',
-            'is_pers'     => 'nullable|boolean',
             'override'    => 'nullable',
         ]);
 
         // Find registration
         $query = Registration::query()
             ->where('unique_code', $validated['unique_code']);
-
-        // Apply VIP/Pers filters if provided
-        if (isset($validated['is_vip']) && $validated['is_vip']) {
-            $query->where('extras->is_vip', true);
-        }
-        if (isset($validated['is_pers']) && $validated['is_pers']) {
-            $query->where('extras->is_pers', true);
-        }
 
         $registration = $query->with('seat')->first();
 

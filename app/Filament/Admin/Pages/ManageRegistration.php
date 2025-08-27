@@ -23,18 +23,18 @@ class ManageRegistration extends SettingsPage
     {
         return $form
             ->schema([
-                TextInput::make('vip_limit')
-                    ->label('Limit VIP')
+                TextInput::make('session_1_limit')
+                    ->label('Limit Sesi 1')
                     ->helperText('Set ke -1 untuk limit tidak terbatas')
                     ->numeric()
                     ->step(1), 
-                TextInput::make('pers_limit')
-                    ->label('Limit Pers')
+                TextInput::make('session_2_limit')
+                    ->label('Limit Sesi 2')
                     ->helperText('Set ke -1 untuk limit tidak terbatas')
                     ->numeric()
                     ->step(1),
-                TextInput::make('regular_limit')
-                    ->label('Limit Umum')
+                TextInput::make('session_3_limit')
+                    ->label('Limit Sesi 3')
                     ->helperText('Set ke -1 untuk limit tidak terbatas')
                     ->numeric()
                     ->step(1),

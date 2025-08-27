@@ -22,7 +22,7 @@ export default function InputField({
       <label
         htmlFor={id || name}
         className={clsx(
-          "poppins text-sm md:text-sm lg:text-base",
+          "text-sm md:text-sm lg:text-base",
           {
             "text-gray-400": disabled,
             "text-red-600": error,
@@ -31,7 +31,7 @@ export default function InputField({
         )}
       >
         {label}
-        {required && <span className="poppins text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       <input
@@ -44,8 +44,8 @@ export default function InputField({
         required={required}
         disabled={disabled}
         className={clsx(
-          "poppins py-2 px-4 text-base bg-gray-100 md:text-lg lg:text-xl lg:py-3 lg:px-5 rounded",
-          "border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          " py-2 px-4 text-base bg-gray-100 md:text-lg lg:text-xl lg:py-3 lg:px-5 rounded",
+          "border border-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent",
           "transition-colors duration-200 text-black",
           {
             "bg-gray-200 text-gray-500 cursor-not-allowed": disabled,
@@ -59,7 +59,7 @@ export default function InputField({
       />
 
       {error && (
-        <span className="poppins text-red-600 text-sm font-medium">{error}</span>
+        <span className="text-red-600 text-sm font-medium">{error}</span>
       )}
     </div>
   );

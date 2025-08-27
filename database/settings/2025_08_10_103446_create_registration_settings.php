@@ -6,8 +6,8 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('registration.regular_limit', -1);
-        $this->migrator->add('registration.vip_limit', -1);
-        $this->migrator->add('registration.pers_limit', -1);
+        $this->migrator->add('registration.session_1_limit', 200);
+        $this->migrator->add('registration.session_2_limit', 200);
+        $this->migrator->add('registration.session_3_limit', 200);
     }
 };

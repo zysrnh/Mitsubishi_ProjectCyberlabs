@@ -31,7 +31,6 @@ class TwilioService
         string $recipientNumber,
         string $filename,
         Registration $registration,
-        ?bool $isVip = false,
         ?string $contentSid = null,
         ?string $messagingServiceSid = null,
     ): MessageInstance {
@@ -40,17 +39,12 @@ class TwilioService
 
         try {
             $eventName = match ($registration->extras['event_name']) {
-                EventName::EXHIBITION->value => 'Pameran',
-                EventName::OPENING_CEREMONY->value => 'Opening Ceremony',
-                EventName::PRESS_CONFERENCE->value => 'Press Conference',
+                EventName::SEMINAR->value => 'Seminar',
+                EventName::INAUGURATION->value => 'Pelantikan',
                 default => '-',
             };
-            $contentVariables = [];
-            if ($isVip) {
-                $contentVariables = $this->buildVipContentVariables($filename, $eventName, $registration->seat->label ?? '-');
-            } else {
-                $contentVariables = $this->buildContentVariables($filename, $eventName);
-            }
+            
+            $contentVariables = $this->buildContentVariables($filename, $eventName);
 
             $messageInstance = $this->sendMessage($recipientNumber, [
                 'contentSid' => $contentSid,
@@ -109,15 +103,6 @@ class TwilioService
         return json_encode([
             '1' => $filename,
             '2' => $eventName,
-        ]);
-    }
-
-    private function buildVipContentVariables(string $filename, string $eventName, string $seat): string
-    {
-        return json_encode([
-            '1' => $filename,
-            '2' => $eventName,
-            '3' => $seat,
         ]);
     }
 

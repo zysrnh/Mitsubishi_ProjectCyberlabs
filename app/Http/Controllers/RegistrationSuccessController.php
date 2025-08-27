@@ -17,9 +17,7 @@ class RegistrationSuccessController extends Controller
             'is_approved' => $registration->is_approved,
             'qr_full_path' => $registration->qr_path ?? '',
             'images' => [
-                'ekraf_white' => asset('images/ekraf-text-white.png'),
-                'kkri_white' => asset('images/kkri-text-white.png'),
-                'sby_art_white' => asset('images/sbyart-logo.png'),
+                'logo_ikaismei' => asset('images/logo-ika-ismei_compressed.png'),
             ],
         ]);
     }

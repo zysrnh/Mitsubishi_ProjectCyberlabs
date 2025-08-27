@@ -24,12 +24,10 @@ class ListRegistrations extends ListRecords
     {
         return [
             'Semua' => Tab::make(),
-            'Pameran' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('extras->event_name', EventName::EXHIBITION->value)),
-            'Opening Ceremony' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('extras->event_name', EventName::OPENING_CEREMONY->value)),
-            'Press Conference' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('extras->event_name', EventName::PRESS_CONFERENCE->value)),
+            'Pelantikan' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('extras->event_name', EventName::INAUGURATION->value)),
+            'Seminar' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('extras->event_name', EventName::SEMINAR->value)),
         ];
     }
 }

@@ -6,9 +6,9 @@ use Spatie\LaravelSettings\Settings;
 
 class RegistrationSettings extends Settings
 {
-    public int $regular_limit;
-    public int $vip_limit;
-    public int $pers_limit;
+    public int $session_1_limit;
+    public int $session_2_limit;
+    public int $session_3_limit;
 
     public static function group(): string
     {

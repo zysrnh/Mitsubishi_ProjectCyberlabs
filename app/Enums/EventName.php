@@ -4,16 +4,14 @@ namespace App\Enums;
 
 enum EventName: string
 {
-    case PRESS_CONFERENCE = 'press_conference';
-    case OPENING_CEREMONY = 'opening_ceremony';
-    case EXHIBITION = 'exhibition';
+    case INAUGURATION = 'inauguration';
+    case SEMINAR = 'seminar';
 
     public function title(): string
     {
         return match($this) {
-            self::PRESS_CONFERENCE => 'Press Conference',
-            self::OPENING_CEREMONY => 'Opening Ceremony',
-            self::EXHIBITION => 'Exhibition',
+            self::INAUGURATION => 'Pelantikan',
+            self::SEMINAR => 'Seminar',
         };
     }
 

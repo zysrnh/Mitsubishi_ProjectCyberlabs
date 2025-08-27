@@ -35,12 +35,11 @@ class CreateRegistration extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $registration = $this->record;
+        $extras = $this->record->extras ?? [];
 
-        Seat::find($this->seatId)->update([
-            'registration_id' => $registration->id,
-        ]);
+        $extras['organization'] = $this->form->getState()['organization'] ?? null;
 
-        GenerateQr::dispatch($registration);
+        $this->record->extras = $extras;
+        $this->record->saveQuietly();
     }
 }
