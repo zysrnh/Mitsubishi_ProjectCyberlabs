@@ -16,22 +16,26 @@ class Registration extends Model
         'email',
         'phone',
         'unique_code',
+        'qr_path',
         'has_attended',
-        'is_approved',
-        'approved_at',
         'attended_at',
         'last_blasted_at',
-        'last_successful_sent_at',
         'whatsapp_send_attempts',
         'extras',
-        'event_id',
+    ];
+
+    protected $casts = [
+        'extras' => 'array',
+        'has_attended' => 'boolean',
+        'attended_at' => 'datetime',
+        'last_blasted_at' => 'datetime',
     ];
 
     protected $appends = [
-        'qr_path',
-        'qr_full_path',
+        'qr_url',
     ];
 
+    // ==================== AUTO GENERATE UNIQUE CODE ====================
     protected static function booted(): void
     {
         static::creating(function (Registration $registration) {
@@ -39,133 +43,8 @@ class Registration extends Model
                 $registration->unique_code = static::generateUniqueCode();
             }
         });
-
-        static::deleted(function (Registration $registration) {
-            if ($registration->seat) {
-                $registration->seat->update([
-                    'registration_id' => null,
-                ]);
-            }
-        });
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'extras' => 'array',
-            'is_approved' => 'boolean',
-            'has_attended' => 'boolean',
-            'approved_at' => 'datetime',
-            'attended_at' => 'datetime',
-            'last_blasted_at' => 'datetime',
-            'last_successful_sent_at' => 'datetime',
-        ];
-    }
-
-    // ==================== QR Code Attributes ====================
-
-    protected function qrPath(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => asset('storage/qr_codes/' . $this->unique_code . '.png')
-        );
-    }
-
-    protected function qrFullPath(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => 'storage/qr_codes/' . $this->unique_code . '.png'
-        );
-    }
-
-    protected function qrDiskPath(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => 'qr_codes/' . $this->unique_code . '.png'
-        );
-    }
-
-    // ==================== Extras Accessors ====================
-    // Tambahkan di bagian Extras Accessors
-
-    public function getRegionAttribute()
-    {
-        return $this->extras['region'] ?? null;
-    }
-    public function getOrganizationAttribute()
-    {
-        return $this->extras['organization'] ?? null;
-    }
-
-    public function getPositionAttribute()
-    {
-        return $this->extras['position'] ?? null;
-    }
-
-    public function getShirtNumberAttribute()
-    {
-        return $this->extras['shirt_number'] ?? null;
-    }
-
-    public function getEventNameAttribute()
-    {
-        return $this->extras['event_name'] ?? null;
-    }
-
-    public function getTypeAttribute()
-    {
-        return $this->extras['type'] ?? null;
-    }
-
-    public function getHasSessionAttribute()
-    {
-        return $this->extras['has_session'] ?? false;
-    }
-
-    // ==================== WhatsApp Status Methods ====================
-
-    public function getMessageStatusAttribute()
-    {
-        return $this->getWhatsappDeliveryStatus();
-    }
-
-    public function getWhatsappDeliveryStatus()
-    {
-        $latestLog = $this->latestTwilioLog;
-
-        if (!$latestLog) {
-            return 'not_sent';
-        }
-
-        return $latestLog->status;
-    }
-
-    public function hasSuccessfulWhatsappDelivery()
-    {
-        return $this->twilioLogs()
-            ->whereIn('status', ['delivered', 'sent'])
-            ->exists();
-    }
-
-    public function getFailedWhatsappAttempts()
-    {
-        return $this->twilioLogs()
-            ->whereIn('status', ['failed', 'undelivered', 'rejected'])
-            ->count();
-    }
-
-    // ==================== Helper Methods ====================
-
-    /**
-     * Generate a unique code.
-     *
-     * @return string
-     */
     private static function generateUniqueCode(): string
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -181,42 +60,72 @@ class Registration extends Model
         return $code;
     }
 
-    // ==================== Relationships ====================
-
-    public function seat()
+    // ==================== QR CODE ATTRIBUTES ====================
+    protected function qrUrl(): Attribute
     {
-        return $this->hasOne(Seat::class);
+        return Attribute::make(
+            get: fn() => $this->qr_path 
+                ? asset('storage/' . $this->qr_path)
+                : null
+        );
     }
 
-    public function event()
+    // ==================== MITSUBISHI DATA ACCESSORS ====================
+    public function getVehicleAttribute()
     {
-        return $this->belongsTo(Event::class);
+        return $this->extras['vehicle'] ?? null;
     }
 
-    public function twilioLogs()
+    public function getDealerBranchAttribute()
     {
-        return $this->hasMany(TwilioLog::class);
+        return $this->extras['dealer_branch'] ?? null;
     }
 
-    public function latestTwilioLog()
+    public function getAssistantSalesAttribute()
     {
-        return $this->hasOne(TwilioLog::class)->latestOfMany();
+        return $this->extras['assistant_sales'] ?? null;
     }
 
-    // ==================== Query Scopes ====================
-
-    public function scopeApproved($query)
+    public function getDealerAttribute()
     {
-        return $query->where('is_approved', true);
+        return $this->extras['dealer'] ?? null;
     }
 
+    // ==================== HELPER METHODS ====================
+    public function markAsAttended(): void
+    {
+        $this->update([
+            'has_attended' => true,
+            'attended_at' => now(),
+        ]);
+    }
+
+    public function recordWhatsappSent(): void
+    {
+        $this->update([
+            'last_blasted_at' => now(),
+            'whatsapp_send_attempts' => $this->whatsapp_send_attempts + 1,
+        ]);
+    }
+
+    // ==================== QUERY SCOPES ====================
     public function scopeAttended($query)
     {
         return $query->where('has_attended', true);
     }
 
-    public function scopePending($query)
+    public function scopeNotAttended($query)
     {
-        return $query->where('is_approved', false);
+        return $query->where('has_attended', false);
+    }
+
+    public function scopeByVehicle($query, string $vehicle)
+    {
+        return $query->whereJsonContains('extras->vehicle', $vehicle);
+    }
+
+    public function scopeByDealerBranch($query, string $branch)
+    {
+        return $query->whereJsonContains('extras->dealer_branch', $branch);
     }
 }

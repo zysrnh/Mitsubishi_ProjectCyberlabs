@@ -1,15 +1,15 @@
 import { Head, useForm, usePage } from "@inertiajs/react";
-import { useState } from "react";
 
-export default function MitsubishiRegistration({ images }) {
+export default function MitsubishiRegistration({ selectedVehicle }) {
   const { flash } = usePage().props;
-  const { data, setData, post, processing, errors, reset, setError } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     name: "",
     phone: "",
     email: "",
     assistant_sales: "",
     dealer: "",
     dealer_branch: "",
+    vehicle: selectedVehicle?.id || "",
     agree_terms: false,
   });
 
@@ -20,16 +20,13 @@ export default function MitsubishiRegistration({ images }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Simple validation
-    if (!data.name || !data.phone || !data.email || !data.dealer_branch || !data.agree_terms) {
-      alert("Mohon lengkapi semua field yang wajib diisi dan setujui syarat & ketentuan");
-      return;
-    }
-
-    post(route("karang_taruna.submit_form"), {
+    post(route("mitsubishi.submit_form"), {
       onSuccess: () => {
-        reset();
+        // Success akan auto redirect ke success page dari controller
       },
+      onError: (errors) => {
+        console.error('Validation errors:', errors);
+      }
     });
   };
 
@@ -67,7 +64,6 @@ export default function MitsubishiRegistration({ images }) {
           font-family: 'Inter', sans-serif;
         }
 
-        /* Select styling */
         select {
           appearance: none;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -82,7 +78,6 @@ export default function MitsubishiRegistration({ images }) {
           color: #9ca3af;
         }
 
-        /* Input styling */
         input[type="text"],
         input[type="tel"],
         input[type="email"],
@@ -100,7 +95,6 @@ export default function MitsubishiRegistration({ images }) {
           outline: none;
         }
 
-        /* Checkbox styling */
         input[type="checkbox"] {
           width: 1.25rem;
           height: 1.25rem;
@@ -110,7 +104,6 @@ export default function MitsubishiRegistration({ images }) {
           accent-color: #C8102E;
         }
 
-        /* Animations */
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -182,19 +175,30 @@ export default function MitsubishiRegistration({ images }) {
           </div>
 
           {/* Title */}
-          <h1 className="montserrat-extrabold text-xl md:text-3xl text-center mb-8 animate-title">
+          <h1 className="montserrat-extrabold text-xl md:text-3xl text-center mb-2 animate-title">
             INDONESIA INTERNATIONAL<br />
             MOTOR SHOW
           </h1>
 
+          {/* Selected Vehicle Badge */}
+          {selectedVehicle && (
+            <div className="mb-6 animate-form">
+              <div className="bg-[#C8102E] text-white px-6 py-2 rounded-full">
+                <span className="inter-font font-semibold text-sm">
+                  Test Drive: {selectedVehicle.name}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Form Container */}
           <div className="w-full max-w-lg animate-form mb-8">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name */}
+              {/* Full Name & Phone */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Full Name
+                    Full Name *
                   </label>
                   <input
                     type="text"
@@ -204,38 +208,42 @@ export default function MitsubishiRegistration({ images }) {
                     className="w-full px-4 py-2.5 rounded-lg bg-white"
                     required
                   />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
 
-                {/* Phone Number */}
                 <div>
                   <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Phone Number
+                    Phone Number *
                   </label>
                   <input
                     type="tel"
                     name="phone"
                     value={data.phone}
                     onChange={handleChange}
+                    placeholder="08123456789"
                     className="w-full px-4 py-2.5 rounded-lg bg-white"
                     required
                   />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
               </div>
 
-              {/* Email and Assistant Sales */}
+              {/* Email & Assistant Sales */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    E-mail Adress
+                    E-mail Address *
                   </label>
                   <input
                     type="email"
                     name="email"
                     value={data.email}
                     onChange={handleChange}
+                    placeholder="email@example.com"
                     className="w-full px-4 py-2.5 rounded-lg bg-white"
                     required
                   />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -247,12 +255,13 @@ export default function MitsubishiRegistration({ images }) {
                     name="assistant_sales"
                     value={data.assistant_sales}
                     onChange={handleChange}
+                    placeholder="Optional"
                     className="w-full px-4 py-2.5 rounded-lg bg-white"
                   />
                 </div>
               </div>
 
-              {/* Sales Dealer and Dealer Branch */}
+              {/* Sales Dealer & Dealer Branch */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
@@ -263,13 +272,14 @@ export default function MitsubishiRegistration({ images }) {
                     name="dealer"
                     value={data.dealer}
                     onChange={handleChange}
+                    placeholder="Optional"
                     className="w-full px-4 py-2.5 rounded-lg bg-white"
                   />
                 </div>
 
                 <div>
                   <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Dealer Branch
+                    Dealer Branch *
                   </label>
                   <select
                     name="dealer_branch"
@@ -289,6 +299,7 @@ export default function MitsubishiRegistration({ images }) {
                     <option value="Bandung">Bandung</option>
                     <option value="Surabaya">Surabaya</option>
                   </select>
+                  {errors.dealer_branch && <p className="text-red-500 text-xs mt-1">{errors.dealer_branch}</p>}
                 </div>
               </div>
 
@@ -313,6 +324,7 @@ export default function MitsubishiRegistration({ images }) {
                     I agree to the terms and conditions
                   </label>
                 </div>
+                {errors.agree_terms && <p className="text-red-500 text-xs mt-1 text-center">{errors.agree_terms}</p>}
               </div>
 
               {/* Submit Button */}

@@ -13,24 +13,40 @@ return new class extends Migration
     {
         Schema::create('registrations', function (Blueprint $table) {
             $table->id();
+            
+            // Basic Info
             $table->string('name');
             $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('unique_code')->nullable();
+            $table->string('phone');
+            
+            // QR Code
+            $table->string('unique_code')->unique();
+            $table->string('qr_path')->nullable();
+            
+            // Status
             $table->boolean('has_attended')->default(false);
-            $table->boolean('is_approved')->default(false);
             $table->timestamp('attended_at')->nullable();
-            $table->timestamp('approved_at')->nullable();
+            
+            // WhatsApp Tracking
             $table->timestamp('last_blasted_at')->nullable();
-            $table->timestamp('last_successful_sent_at')->nullable();
             $table->integer('whatsapp_send_attempts')->default(0);
+            
+            // Mitsubishi Specific Data (JSON)
+            // {
+            //   "vehicle": "xpander",
+            //   "dealer_branch": "Jakarta Pusat", 
+            //   "assistant_sales": "Budi",
+            //   "dealer": "PT Krama Yudha"
+            // }
             $table->json('extras')->nullable();
-            $table->foreignId('event_id')
-                ->nullable()
-                ->constrained()
-                ->onDelete('cascade');
-            $table->softDeletes();
+            
             $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes
+            $table->index('unique_code');
+            $table->index('phone');
+            $table->index('has_attended');
         });
     }
 

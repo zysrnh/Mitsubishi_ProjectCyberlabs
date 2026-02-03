@@ -2,58 +2,69 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RoleSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeder.
      */
     public function run(): void
     {
-        $webAdminRole = Role::firstOrCreate(['name' => 'web_admin']);
-        $adminViewRole = Role::firstOrCreate(['name' => 'admin_view']);
-        $adminEditorRole = Role::firstOrCreate(['name' => 'admin_editor']);
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $adminViewRole->givePermissionTo([
-            'view_any_registration',
-            'view_registration',
-        ]);
-
-        $adminEditorRole->givePermissionTo([
-            'view_any_registration',
-            'view_registration',
-            'create_registration',
-            'update_registration',
-        ]);
-
-        $webAdminRole->givePermissionTo([
+        // ==================== PERMISSIONS ====================
+        $permissions = [
+            // Registration permissions
             'view_any_registration',
             'view_registration',
             'create_registration',
             'update_registration',
             'delete_registration',
-            'delete_any_registration',
-            'force_delete_registration',
-            'force_delete_any_registration',
             'restore_registration',
-            'restore_any_registration',
-            'replicate_registration',
-            'reorder_registration',
-            'view_any_user',
-            'view_user',
-            'create_user',
-            'update_user',
-            'delete_user',
-            'delete_any_user',
-            'force_delete_user',
-            'force_delete_any_user',
-            'restore_user',
-            'restore_any_user',
-            'replicate_user',
-            'reorder_user',
+            'force_delete_registration',
+            
+            // Additional permissions
+            'approve_registration',
+            'resend_qr',
+            'export_registration',
+            'view_qr_code',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        // ==================== ROLES ====================
+        
+        // Super Admin - Full Access
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $superAdmin->givePermissionTo(Permission::all());
+
+        // Web Admin - Full Registration Access
+        $webAdmin = Role::firstOrCreate(['name' => 'web_admin']);
+        $webAdmin->givePermissionTo([
+            'view_any_registration',
+            'view_registration',
+            'create_registration',
+            'update_registration',
+            'delete_registration',
+            'approve_registration',
+            'resend_qr',
+            'export_registration',
+            'view_qr_code',
+        ]);
+
+        // Admin Editor - Limited Access
+        $adminEditor = Role::firstOrCreate(['name' => 'admin_editor']);
+        $adminEditor->givePermissionTo([
+            'view_any_registration',
+            'view_registration',
+            'update_registration',
+            'view_qr_code',
         ]);
     }
 }

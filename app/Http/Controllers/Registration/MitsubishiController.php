@@ -4,20 +4,22 @@ namespace App\Http\Controllers\Registration;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateQr;
+use App\Jobs\SendQrToWhatsapp;
 use App\Models\Registration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
 class MitsubishiController extends Controller
 {
     /**
-     * Show landing page
+     * Show landing page dengan tombol TEST DRIVE
      */
     public function showLanding()
     {
         return Inertia::render('Registration/MitsubishiLanding', [
-            'redirectTo' => route('mitsubishi.show_form'),
+            'redirectTo' => route('mitsubishi.vehicles'),
         ]);
     }
 
@@ -26,18 +28,56 @@ class MitsubishiController extends Controller
      */
     public function showVehicleSelection()
     {
-        return Inertia::render('Registration/VehicleSelection');
+        return Inertia::render('Registration/VehicleSelection', [
+            'vehicles' => [
+                [
+                    'id' => 'destinator',
+                    'name' => 'DESTINATOR',
+                    'image' => '/images/vehicles/destinator.png'
+                ],
+                [
+                    'id' => 'xpander',
+                    'name' => 'XPANDER',
+                    'image' => '/images/vehicles/xpander.png'
+                ],
+                [
+                    'id' => 'xforce',
+                    'name' => 'XFORCE',
+                    'image' => '/images/vehicles/xforce.png'
+                ],
+                [
+                    'id' => 'pajero_sport',
+                    'name' => 'NEW PAJERO SPORT',
+                    'image' => '/images/vehicles/pajero.png'
+                ]
+            ]
+        ]);
     }
 
     /**
-     * Show registration form
+     * Show registration form dengan kendaraan yang dipilih
      */
     public function showForm(Request $request)
     {
-        $vehicle = $request->query('vehicle', null);
+        $vehicle = $request->query('vehicle');
         
+        // Redirect ke vehicle selection jika tidak ada mobil yang dipilih
+        if (!$vehicle) {
+            return redirect()->route('mitsubishi.vehicles');
+        }
+
+        $vehicleNames = [
+            'destinator' => 'Destinator',
+            'xpander' => 'Xpander',
+            'xforce' => 'Xforce',
+            'pajero_sport' => 'New Pajero Sport',
+        ];
+
         return Inertia::render('Registration/MitsubishiRegistration', [
-            'selectedVehicle' => $vehicle,
+            'selectedVehicle' => [
+                'id' => $vehicle,
+                'name' => $vehicleNames[$vehicle] ?? 'Unknown Vehicle',
+            ],
         ]);
     }
 
@@ -53,40 +93,56 @@ class MitsubishiController extends Controller
             'assistant_sales' => ['nullable', 'string', 'max:255'],
             'dealer' => ['nullable', 'string', 'max:255'],
             'dealer_branch' => ['required', 'string', 'max:255'],
-            'vehicle' => ['nullable', 'string', 'max:100'],
+            'vehicle' => ['required', 'string', 'in:destinator,xpander,xforce,pajero_sport'],
             'agree_terms' => ['accepted'],
         ]);
+
+        // Normalize phone number
+        $phone = $validated['phone'];
+        if (strpos($phone, '0') === 0) {
+            $phone = '+62' . substr($phone, 1);
+        } elseif (strpos($phone, '62') === 0) {
+            $phone = '+' . $phone;
+        } elseif (strpos($phone, '+62') !== 0) {
+            $phone = '+62' . $phone;
+        }
 
         // Create registration
         $registration = Registration::create([
             'name' => $validated['name'],
-            'phone' => $validated['phone'],
+            'phone' => $phone,
             'email' => $validated['email'],
-            'is_approved' => true,
-            'approved_at' => now(),
             'extras' => [
-                'type' => 'mitsubishi_iims',
-                'event_name' => 'Indonesia International Motor Show',
-                'has_session' => false,
+                'vehicle' => $validated['vehicle'],
+                'dealer_branch' => $validated['dealer_branch'],
                 'assistant_sales' => $validated['assistant_sales'] ?? null,
                 'dealer' => $validated['dealer'] ?? null,
-                'dealer_branch' => $validated['dealer_branch'],
-                'vehicle' => $validated['vehicle'] ?? null,
+                'event_name' => 'Indonesia International Motor Show',
             ],
         ]);
 
-        // Generate QR code
+        // Generate QR Code
         GenerateQr::dispatchSync($registration);
 
-        // Create signed URL for success page
+        // Update qr_path di database (sesuaikan dengan logic GenerateQr job lu)
+        $registration->update([
+            'qr_path' => 'qr_codes/' . $registration->unique_code . '.png',
+        ]);
+
+        // Kirim QR via WhatsApp (async)
+        Bus::chain([
+            new SendQrToWhatsapp($registration),
+        ])->dispatch();
+
+        $registration->recordWhatsappSent();
+
+        // Create signed URL untuk success page
         $signedUrl = URL::temporarySignedRoute(
             'registration_success',
-            now()->addHour(),
+            now()->addHours(24),
             ['registration' => $registration->id]
         );
 
-        return redirect($signedUrl)->with('info', [
-            'success' => 'Registration successful! Your QR code will be sent via WhatsApp.',
-        ]);
+        return redirect($signedUrl);
     }
 }

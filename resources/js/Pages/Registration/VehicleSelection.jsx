@@ -1,37 +1,14 @@
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useState } from "react";
 
-export default function VehicleSelection({ onNext }) {
+export default function VehicleSelection({ vehicles }) {
   const [selectedVehicle, setSelectedVehicle] = useState("");
-
-  const vehicles = [
-    {
-      id: "destinator",
-      name: "DESTINATOR",
-      image: "/placeholder-destinator.png"
-    },
-    {
-      id: "xpander",
-      name: "XPANDER",
-      image: "/placeholder-xpander.png"
-    },
-    {
-      id: "xforce",
-      name: "XFORCE",
-      image: "/placeholder-xforce.png"
-    },
-    {
-      id: "pajero_sport",
-      name: "NEW PAJERO SPORT",
-      image: "/placeholder-pajero.png"
-    }
-  ];
 
   const handleVehicleSelect = (vehicleId) => {
     setSelectedVehicle(vehicleId);
-    // Navigate to form with selected vehicle
+    // Navigate ke form dengan vehicle yang dipilih
     setTimeout(() => {
-      if (onNext) onNext(vehicleId);
+      router.visit(route('mitsubishi.show_form', { vehicle: vehicleId }));
     }, 300);
   };
 
