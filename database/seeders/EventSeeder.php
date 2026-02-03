@@ -3,22 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\Event;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EventSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeder.
      */
     public function run(): void
     {
-        Event::create([
-            'name' => 'Pelantikan IKA ISMEI',
-        ]);
-        
-        Event::create([
-            'name' => 'Seminar IKA ISMEI',
-        ]);
+        // Create Mitsubishi IIMS Event
+        Event::firstOrCreate(
+            ['slug' => 'indonesia-international-motor-show'],
+            [
+                'name' => 'Indonesia International Motor Show',
+            ]
+        );
     }
 }

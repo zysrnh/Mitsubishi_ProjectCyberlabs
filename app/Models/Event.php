@@ -13,12 +13,25 @@ class Event extends Model
     protected $fillable = [
         'name',
         'slug',
+        'description',
+        'start_date',
+        'end_date',
+        'location',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     protected static function booted(): void
     {
         static::creating(function (Event $event) {
-            $event->slug = str($event->name)->slug();
+            if (empty($event->slug)) {
+                $event->slug = str($event->name)->slug();
+            }
         });
     }
 
@@ -30,5 +43,18 @@ class Event extends Model
     public function seats()
     {
         return $this->hasMany(Seat::class);
+    }
+
+    // Scope untuk event yang aktif
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    // Scope untuk event yang sedang berlangsung
+    public function scopeOngoing($query)
+    {
+        return $query->where('start_date', '<=', now())
+            ->where('end_date', '>=', now());
     }
 }
