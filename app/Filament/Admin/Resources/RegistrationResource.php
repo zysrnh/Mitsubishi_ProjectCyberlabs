@@ -15,6 +15,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -101,8 +102,14 @@ class RegistrationResource extends Resource
                     ->afterStateHydrated(fn($set, $record) => $set('dealer_branch', $record->extras['dealer_branch'] ?? null))
                     ->dehydrated(false),
                     
-                TextInput::make('vehicle')
+                Select::make('vehicle')
                     ->label('Kendaraan yang Dipilih')
+                    ->options([
+                        'destinator' => 'Destinator',
+                        'xpander' => 'Xpander',
+                        'xforce' => 'Xforce',
+                        'pajero_sport' => 'New Pajero Sport',
+                    ])
                     ->afterStateHydrated(fn($set, $record) => $set('vehicle', $record->extras['vehicle'] ?? null))
                     ->dehydrated(false),
                     
@@ -128,64 +135,8 @@ class RegistrationResource extends Resource
                     ->default('-')
                     ->toggleable()
                     ->searchable(),
-                    
-                TextColumn::make('extras.region')
-                    ->label('Tingkatan')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                TextColumn::make('extras.organization')
-                    ->label('Organisasi')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                TextColumn::make('extras.position')
-                    ->label('Jabatan')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                TextColumn::make('extras.institution')
-                    ->label('Instansi')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                // ======== KOLOM UNTUK MITSUBISHI IIMS ========
-                TextColumn::make('extras.dealer_branch')
-                    ->label('Dealer Branch')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                TextColumn::make('extras.vehicle')
-                    ->label('Kendaraan')
-                    ->default('-')
-                    ->badge()
-                    ->color('info')
-                    ->formatStateUsing(fn(?string $state): string => match ($state) {
-                        'destinator' => 'Destinator',
-                        'xpander' => 'Xpander',
-                        'xforce' => 'Xforce',
-                        'pajero_sport' => 'Pajero Sport',
-                        default => $state ?? '-',
-                    })
-                    ->toggleable(),
-                    
-                TextColumn::make('extras.assistant_sales')
-                    ->label('Sales Assistant')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
-                TextColumn::make('extras.event_name')
-                    ->label('Event')
-                    ->default('-')
-                    ->toggleable()
-                    ->searchable(),
-                    
+                
+                // ======== KOLOM TIPE REGISTRASI (PALING PENTING) ========
                 TextColumn::make('extras.type')
                     ->label('Tipe')
                     ->badge()
@@ -203,67 +154,145 @@ class RegistrationResource extends Resource
                         'mitsubishi_iims' => 'Mitsubishi IIMS',
                         default => '-',
                     })
-                    ->toggleable(),
+                    ->sortable()
+                    ->searchable(),
+                    
+                // ======== KOLOM UNTUK KARANG TARUNA ========
+                TextColumn::make('extras.region')
+                    ->label('Tingkatan')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                // ======== KOLOM UNTUK UMUM ========
+                TextColumn::make('extras.organization')
+                    ->label('Organisasi')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                TextColumn::make('extras.position')
+                    ->label('Jabatan')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                // ======== KOLOM UNTUK VIP ========
+                TextColumn::make('extras.institution')
+                    ->label('Instansi')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                // ======== KOLOM UNTUK MITSUBISHI IIMS (VISIBLE BY DEFAULT) ========
+                TextColumn::make('extras.vehicle')
+                    ->label('Kendaraan')
+                    ->default('-')
+                    ->badge()
+                    ->color('info')
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                        'destinator' => 'Destinator',
+                        'xpander' => 'Xpander',
+                        'xforce' => 'Xforce',
+                        'pajero_sport' => 'New Pajero Sport',
+                        default => $state ?? '-',
+                    })
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(),
+                    
+                TextColumn::make('extras.dealer_branch')
+                    ->label('Dealer Branch')
+                    ->default('-')
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(),
+                    
+                TextColumn::make('extras.assistant_sales')
+                    ->label('Sales Assistant')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                TextColumn::make('extras.dealer')
+                    ->label('Sales Dealer')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                TextColumn::make('extras.event_name')
+                    ->label('Event')
+                    ->default('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 
-                // Status QR Code Generated
-                IconColumn::make('qr_generated_display')
+                // ======== STATUS COLUMNS ========
+                IconColumn::make('qr_generated')
                     ->label('QR Generated')
                     ->boolean()
                     ->getStateUsing(fn($record) => !empty($record->qr_path))
                     ->toggleable(),
                 
-                // Status WhatsApp Terkirim
-                IconColumn::make('wa_sent_display')
-                    ->label('WA Terkirim')
+                IconColumn::make('wa_sent')
+                    ->label('WA Sent')
                     ->boolean()
                     ->getStateUsing(fn($record) => !empty($record->last_blasted_at))
                     ->toggleable(),
                     
-                IconColumn::make('has_attended_display')
-                    ->label('Telah Hadir')
+                IconColumn::make('has_attended')
+                    ->label('Hadir')
                     ->boolean()
-                    ->getStateUsing(fn($record) => $record->has_attended)
                     ->toggleable(),
                     
                 ToggleColumn::make('has_attended')
-                    ->label('Ubah Status Kehadiran')
+                    ->label('Toggle Kehadiran')
                     ->afterStateUpdated(function (bool $state, $record) {
                         $record->update([
                             'attended_at' => $state ? now() : null,
                         ]);
                     })
-                    ->visible(fn() => auth()->user()->can('update_registration'))
-                    ->toggleable(),
+                    ->visible(fn() => auth()->user()?->can('update_registration') ?? false)
+                    ->toggleable(isToggledHiddenByDefault: true),
                     
                 TextColumn::make('attended_at')
-                    ->label('Hadir pada')
-                    ->dateTime('d F Y, H:i')
+                    ->label('Waktu Hadir')
+                    ->dateTime('d M Y, H:i')
                     ->timezone('Asia/Jakarta')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
                     
                 TextColumn::make('last_blasted_at')
-                    ->label('Terakhir Kirim WA')
+                    ->label('Last WA Sent')
                     ->since()
                     ->timezone('Asia/Jakarta')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
                     
                 TextColumn::make('unique_code')
                     ->label('Kode Unik')
                     ->copyable()
-                    ->copyMessage('Kode berhasil disalin!')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->copyMessage('Kode disalin!')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                    
+                TextColumn::make('created_at')
+                    ->label('Terdaftar')
+                    ->dateTime('d M Y, H:i')
+                    ->timezone('Asia/Jakarta')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
                     
                 TernaryFilter::make('has_attended')
                     ->label('Status Kehadiran')
-                    ->trueLabel('Hadir')
+                    ->trueLabel('Sudah Hadir')
                     ->falseLabel('Belum Hadir')
                     ->placeholder('Semua'),
                 
                 TernaryFilter::make('qr_generated')
-                    ->label('QR Code Generated')
+                    ->label('QR Code')
                     ->trueLabel('Sudah Generate')
                     ->falseLabel('Belum Generate')
                     ->placeholder('Semua')
@@ -273,7 +302,7 @@ class RegistrationResource extends Resource
                     ),
                 
                 TernaryFilter::make('wa_sent')
-                    ->label('WhatsApp Terkirim')
+                    ->label('WhatsApp')
                     ->trueLabel('Sudah Terkirim')
                     ->falseLabel('Belum Terkirim')
                     ->placeholder('Semua')
@@ -301,7 +330,7 @@ class RegistrationResource extends Resource
                         }
                     }),
                     
-                // Filter khusus Mitsubishi - Dealer Branch
+                // ======== FILTER KHUSUS MITSUBISHI ========
                 SelectFilter::make('dealer_branch')
                     ->label('Dealer Branch')
                     ->multiple()
@@ -326,7 +355,6 @@ class RegistrationResource extends Resource
                         }
                     }),
                     
-                // Filter khusus Mitsubishi - Vehicle
                 SelectFilter::make('vehicle')
                     ->label('Kendaraan')
                     ->multiple()
@@ -334,7 +362,7 @@ class RegistrationResource extends Resource
                         'destinator' => 'Destinator',
                         'xpander' => 'Xpander',
                         'xforce' => 'Xforce',
-                        'pajero_sport' => 'Pajero Sport',
+                        'pajero_sport' => 'New Pajero Sport',
                     ])
                     ->query(function ($query, array $data) {
                         if (! empty($data['values'])) {
@@ -347,6 +375,138 @@ class RegistrationResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalHeading(fn(Registration $record) => 'Detail: ' . $record->name)
+                    ->infolist(fn(Registration $record) => [
+                        Section::make('Informasi Dasar')
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->label('Nama'),
+                                TextEntry::make('phone')
+                                    ->label('Nomor Telepon'),
+                                TextEntry::make('email')
+                                    ->label('Email')
+                                    ->default('-'),
+                                TextEntry::make('extras.type')
+                                    ->label('Tipe Registrasi')
+                                    ->badge()
+                                    ->color(fn(?string $state): string => match ($state) {
+                                        'karang_taruna' => 'warning',
+                                        'umum' => 'info',
+                                        'vip' => 'success',
+                                        'mitsubishi_iims' => 'danger',
+                                        default => 'gray',
+                                    })
+                                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                                        'karang_taruna' => 'Karang Taruna',
+                                        'umum' => 'Umum',
+                                        'vip' => 'VIP/VVIP',
+                                        'mitsubishi_iims' => 'Mitsubishi IIMS',
+                                        default => '-',
+                                    }),
+                            ])
+                            ->columns(2),
+                        
+                        // Section untuk Karang Taruna
+                        Section::make('Detail Karang Taruna')
+                            ->schema([
+                                TextEntry::make('extras.region')
+                                    ->label('Tingkatan')
+                                    ->default('-'),
+                            ])
+                            ->visible(fn() => ($record->extras['type'] ?? null) === 'karang_taruna'),
+                        
+                        // Section untuk Umum
+                        Section::make('Detail Peserta Umum')
+                            ->schema([
+                                TextEntry::make('extras.organization')
+                                    ->label('Organisasi')
+                                    ->default('-'),
+                                TextEntry::make('extras.position')
+                                    ->label('Jabatan')
+                                    ->default('-'),
+                            ])
+                            ->columns(2)
+                            ->visible(fn() => ($record->extras['type'] ?? null) === 'umum'),
+                        
+                        // Section untuk VIP
+                        Section::make('Detail VIP/VVIP')
+                            ->schema([
+                                TextEntry::make('extras.institution')
+                                    ->label('Instansi')
+                                    ->default('-'),
+                            ])
+                            ->visible(fn() => ($record->extras['type'] ?? null) === 'vip'),
+                        
+                        // Section untuk Mitsubishi IIMS
+                        Section::make('Detail Mitsubishi IIMS')
+                            ->schema([
+                                TextEntry::make('extras.vehicle')
+                                    ->label('Kendaraan yang Dipilih')
+                                    ->badge()
+                                    ->color('info')
+                                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                                        'destinator' => 'Destinator',
+                                        'xpander' => 'Xpander',
+                                        'xforce' => 'Xforce',
+                                        'pajero_sport' => 'New Pajero Sport',
+                                        default => '-',
+                                    }),
+                                TextEntry::make('extras.dealer_branch')
+                                    ->label('Dealer Branch')
+                                    ->default('-'),
+                                TextEntry::make('extras.assistant_sales')
+                                    ->label('Nama Sales Assistant')
+                                    ->default('-'),
+                                TextEntry::make('extras.dealer')
+                                    ->label('Sales Dealer')
+                                    ->default('-'),
+                                TextEntry::make('extras.event_name')
+                                    ->label('Nama Event')
+                                    ->default('-'),
+                            ])
+                            ->columns(2)
+                            ->visible(fn() => ($record->extras['type'] ?? null) === 'mitsubishi_iims'),
+                        
+                        // Section Status
+                        Section::make('Status')
+                            ->schema([
+                                TextEntry::make('unique_code')
+                                    ->label('Kode Unik')
+                                    ->copyable()
+                                    ->badge()
+                                    ->color('gray'),
+                                IconEntry::make('qr_generated')
+                                    ->label('QR Code Generated')
+                                    ->boolean()
+                                    ->getStateUsing(fn() => !empty($record->qr_path)),
+                                IconEntry::make('wa_sent')
+                                    ->label('WhatsApp Terkirim')
+                                    ->boolean()
+                                    ->getStateUsing(fn() => !empty($record->last_blasted_at)),
+                                IconEntry::make('has_attended')
+                                    ->label('Sudah Hadir')
+                                    ->boolean(),
+                                TextEntry::make('attended_at')
+                                    ->label('Waktu Hadir')
+                                    ->dateTime('d F Y, H:i')
+                                    ->timezone('Asia/Jakarta')
+                                    ->default('-')
+                                    ->visible(fn() => $record->has_attended),
+                                TextEntry::make('last_blasted_at')
+                                    ->label('Terakhir Kirim WA')
+                                    ->dateTime('d F Y, H:i')
+                                    ->timezone('Asia/Jakarta')
+                                    ->default('-')
+                                    ->visible(fn() => !empty($record->last_blasted_at)),
+                                TextEntry::make('created_at')
+                                    ->label('Terdaftar Pada')
+                                    ->dateTime('d F Y, H:i')
+                                    ->timezone('Asia/Jakarta'),
+                            ])
+                            ->columns(2),
+                    ]),
+                    
                 Tables\Actions\EditAction::make(),
                 
                 Action::make('approve')
@@ -355,56 +515,55 @@ class RegistrationResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Approve Registrasi?')
-                    ->modalDescription('QR Code akan digenerate dan dikirim via WhatsApp. Apakah anda yakin?')
+                    ->modalDescription('QR Code akan digenerate dan dikirim via WhatsApp.')
                     ->modalSubmitActionLabel('Ya, Approve')
-                    ->visible(fn(Registration $record) => !$record->is_approved)
-                    ->action(function ($record) {
+                    ->hidden(fn(Registration $record) => !empty($record->qr_path))
+                    ->action(function (Registration $record) {
                         // Generate QR Code
                         GenerateQr::dispatchSync($record);
+                        
+                        // Update qr_path
+                        $record->update([
+                            'qr_path' => 'qr_codes/' . $record->unique_code . '.png',
+                        ]);
                         
                         // Kirim ke WhatsApp
                         Bus::chain([
                             new SendQrToWhatsapp($record),
                         ])->dispatch();
 
-                        // Update status approval
-                        $record->update([
-                            'is_approved' => true,
-                            'approved_at' => now(),
-                            'last_blasted_at' => now(),
-                        ]);
+                        $record->recordWhatsappSent();
                     })
-                    ->successNotificationTitle('Registrasi berhasil di-approve dan QR Code dikirim'),
+                    ->successNotificationTitle('QR Code berhasil digenerate dan dikirim'),
                 
-                Action::make('preview')
-                    ->label('Preview QR')
+                Action::make('preview_qr')
+                    ->label('Lihat QR')
                     ->icon('heroicon-s-qr-code')
-                    ->url(fn(Registration $record) => $record->qr_path)
+                    ->color('info')
+                    ->url(fn(Registration $record) => $record->qr_url)
                     ->openUrlInNewTab()
-                    ->visible(fn(Registration $record) => $record->is_approved),
+                    ->hidden(fn(Registration $record) => empty($record->qr_path)),
                     
-                Action::make('resend')
-                    ->label('Kirim WhatsApp')
+                Action::make('resend_wa')
+                    ->label('Kirim Ulang WA')
                     ->icon('heroicon-s-paper-airplane')
+                    ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Ulang QR Code?')
-                    ->modalDescription('QR Code akan dikirim ulang via WhatsApp. Apakah anda yakin?')
-                    ->modalSubmitActionLabel('Ya, Kirim Ulang')
-                    ->visible(fn(Registration $record) => $record->is_approved)
-                    ->action(function ($record) {
+                    ->modalDescription('QR Code akan dikirim ulang via WhatsApp.')
+                    ->modalSubmitActionLabel('Ya, Kirim')
+                    ->hidden(fn(Registration $record) => empty($record->qr_path))
+                    ->action(function (Registration $record) {
                         Bus::chain([
                             new SendQrToWhatsapp($record),
                         ])->dispatch();
 
-                        $record->update([
-                            'last_blasted_at' => now(),
-                        ]);
+                        $record->recordWhatsappSent();
                     })
                     ->successNotificationTitle('QR Code berhasil dikirim ulang'),
                 
-                // Delete Action dengan cleanup QR file
                 Tables\Actions\DeleteAction::make()
-                    ->before(function ($record) {
+                    ->before(function (Registration $record) {
                         // Hapus file QR jika ada
                         if ($record->qr_path) {
                             $path = str_replace(config('app.url') . '/storage/', '', $record->qr_path);
@@ -415,15 +574,15 @@ class RegistrationResource extends Resource
                     }),
             ])
             ->headerActions([
-                Action::make('export_kehadiran')
-                    ->label('Export Kehadiran')
+                Action::make('export')
+                    ->label('Export Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->form([
                         Select::make('type')
                             ->label('Pilih Tipe')
                             ->options([
-                                'all' => 'Semua (Karang Taruna, Umum, VIP & Mitsubishi)',
+                                'all' => 'Semua',
                                 'karang_taruna' => 'Karang Taruna',
                                 'umum' => 'Umum',
                                 'vip' => 'VIP/VVIP',
@@ -434,7 +593,7 @@ class RegistrationResource extends Resource
                     ])
                     ->action(function (array $data) {
                         $type = $data['type'];
-                        $filename = 'kehadiran_' . $type . '_' . now()->format('Y-m-d_His') . '.xlsx';
+                        $filename = 'registrasi_' . $type . '_' . now()->format('Ymd_His') . '.xlsx';
                         
                         return Excel::download(new RegistrationExport($type), $filename);
                     }),
@@ -465,29 +624,69 @@ class RegistrationResource extends Resource
                         }),
                     Tables\Actions\RestoreBulkAction::make(),
                     
-                    Tables\Actions\BulkAction::make('bulk_resend')
-                        ->label('Kirim Pada Tiap Peserta')
-                        ->icon('heroicon-s-paper-airplane')
+                    Tables\Actions\BulkAction::make('bulk_approve')
+                        ->label('Approve & Kirim QR')
+                        ->icon('heroicon-s-check-circle')
+                        ->color('success')
                         ->requiresConfirmation()
-                        ->modalHeading('Kirim Ulang QR Code ke Registrasi Terpilih?')
-                        ->modalDescription('QR Code akan dikirim ulang via WhatsApp ke semua registrasi yang dipilih.')
-                        ->modalSubmitActionLabel('Ya, Kirim Ulang')
+                        ->modalHeading('Approve & Kirim QR Code?')
+                        ->modalDescription('QR Code akan digenerate dan dikirim ke semua registrasi terpilih.')
+                        ->modalSubmitActionLabel('Ya, Approve & Kirim')
                         ->action(function ($records) {
                             foreach ($records as $record) {
+                                // Skip jika sudah ada QR
+                                if (!empty($record->qr_path)) {
+                                    continue;
+                                }
+                                
+                                // Generate QR Code
+                                GenerateQr::dispatchSync($record);
+                                
+                                // Update qr_path
+                                $record->update([
+                                    'qr_path' => 'qr_codes/' . $record->unique_code . '.png',
+                                ]);
+                                
+                                // Kirim ke WhatsApp
                                 Bus::chain([
                                     new SendQrToWhatsapp($record),
                                 ])->dispatch();
 
-                                $record->update([
-                                    'last_blasted_at' => now(),
-                                ]);
+                                $record->recordWhatsappSent();
                             }
                         })
-                        ->successNotificationTitle('QR Code berhasil dikirim ulang ke registrasi terpilih')
+                        ->successNotificationTitle('QR Code berhasil digenerate dan dikirim')
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('bulk_resend')
+                        ->label('Kirim Ulang WA')
+                        ->icon('heroicon-s-paper-airplane')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Kirim Ulang QR Code?')
+                        ->modalDescription('QR Code akan dikirim ulang ke semua registrasi terpilih.')
+                        ->modalSubmitActionLabel('Ya, Kirim Ulang')
+                        ->action(function ($records) {
+                            foreach ($records as $record) {
+                                // Skip jika belum ada QR
+                                if (empty($record->qr_path)) {
+                                    continue;
+                                }
+                                
+                                Bus::chain([
+                                    new SendQrToWhatsapp($record),
+                                ])->dispatch();
+
+                                $record->recordWhatsappSent();
+                            }
+                        })
+                        ->successNotificationTitle('QR Code berhasil dikirim ulang')
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->striped()
+            ->paginated([10, 25, 50, 100]);
     }
 
     public static function getRelations(): array
