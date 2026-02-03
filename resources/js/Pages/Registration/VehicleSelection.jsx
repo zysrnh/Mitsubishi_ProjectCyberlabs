@@ -5,11 +5,20 @@ export default function VehicleSelection({ vehicles }) {
   const [selectedVehicle, setSelectedVehicle] = useState("");
 
   const handleVehicleSelect = (vehicleId) => {
+    console.log('Vehicle selected:', vehicleId);
     setSelectedVehicle(vehicleId);
+    
     // Navigate ke form dengan vehicle yang dipilih
-    setTimeout(() => {
-      router.visit(route('mitsubishi.show_form', { vehicle: vehicleId }));
-    }, 300);
+    const url = `/mitsubishi/register?vehicle=${vehicleId}`;
+    console.log('Navigating to:', url);
+    
+    // Try Inertia router first, fallback to window.location
+    try {
+      router.visit(url);
+    } catch (error) {
+      console.error('Router error:', error);
+      window.location.href = url;
+    }
   };
 
   return (
