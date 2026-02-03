@@ -84,6 +84,32 @@ class RegistrationResource extends Resource
                     ->label('Instansi')
                     ->afterStateHydrated(fn($set, $record) => $set('institution', $record->extras['institution'] ?? null))
                     ->dehydrated(false),
+                    
+                // ======== FIELD UNTUK MITSUBISHI IIMS ========
+                TextInput::make('assistant_sales')
+                    ->label('Nama Sales Assistant')
+                    ->afterStateHydrated(fn($set, $record) => $set('assistant_sales', $record->extras['assistant_sales'] ?? null))
+                    ->dehydrated(false),
+                    
+                TextInput::make('dealer')
+                    ->label('Sales Dealer')
+                    ->afterStateHydrated(fn($set, $record) => $set('dealer', $record->extras['dealer'] ?? null))
+                    ->dehydrated(false),
+                    
+                TextInput::make('dealer_branch')
+                    ->label('Dealer Branch')
+                    ->afterStateHydrated(fn($set, $record) => $set('dealer_branch', $record->extras['dealer_branch'] ?? null))
+                    ->dehydrated(false),
+                    
+                TextInput::make('vehicle')
+                    ->label('Kendaraan yang Dipilih')
+                    ->afterStateHydrated(fn($set, $record) => $set('vehicle', $record->extras['vehicle'] ?? null))
+                    ->dehydrated(false),
+                    
+                TextInput::make('event_name')
+                    ->label('Nama Event')
+                    ->afterStateHydrated(fn($set, $record) => $set('event_name', $record->extras['event_name'] ?? null))
+                    ->dehydrated(false),
             ]);
     }
 
@@ -127,19 +153,54 @@ class RegistrationResource extends Resource
                     ->toggleable()
                     ->searchable(),
                     
+                // ======== KOLOM UNTUK MITSUBISHI IIMS ========
+                TextColumn::make('extras.dealer_branch')
+                    ->label('Dealer Branch')
+                    ->default('-')
+                    ->toggleable()
+                    ->searchable(),
+                    
+                TextColumn::make('extras.vehicle')
+                    ->label('Kendaraan')
+                    ->default('-')
+                    ->badge()
+                    ->color('info')
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                        'destinator' => 'Destinator',
+                        'xpander' => 'Xpander',
+                        'xforce' => 'Xforce',
+                        'pajero_sport' => 'Pajero Sport',
+                        default => $state ?? '-',
+                    })
+                    ->toggleable(),
+                    
+                TextColumn::make('extras.assistant_sales')
+                    ->label('Sales Assistant')
+                    ->default('-')
+                    ->toggleable()
+                    ->searchable(),
+                    
+                TextColumn::make('extras.event_name')
+                    ->label('Event')
+                    ->default('-')
+                    ->toggleable()
+                    ->searchable(),
+                    
                 TextColumn::make('extras.type')
                     ->label('Tipe')
                     ->badge()
                     ->color(fn(?string $state): string => match ($state) {
-                        'Karang Taruna' => 'warning',
+                        'karang_taruna' => 'warning',
                         'umum' => 'info',
                         'vip' => 'success',
+                        'mitsubishi_iims' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn(?string $state): string => match ($state) {
                         'karang_taruna' => 'Karang Taruna',
                         'umum' => 'Umum',
                         'vip' => 'VIP/VVIP',
+                        'mitsubishi_iims' => 'Mitsubishi IIMS',
                         default => '-',
                     })
                     ->toggleable(),
@@ -228,12 +289,58 @@ class RegistrationResource extends Resource
                         'karang_taruna' => 'Karang Taruna',
                         'umum' => 'Umum',
                         'vip' => 'VIP/VVIP',
+                        'mitsubishi_iims' => 'Mitsubishi IIMS',
                     ])
                     ->query(function ($query, array $data) {
                         if (! empty($data['values'])) {
                             $query->where(function ($q) use ($data) {
                                 foreach ($data['values'] as $value) {
                                     $q->orWhereJsonContains('extras->type', $value);
+                                }
+                            });
+                        }
+                    }),
+                    
+                // Filter khusus Mitsubishi - Dealer Branch
+                SelectFilter::make('dealer_branch')
+                    ->label('Dealer Branch')
+                    ->multiple()
+                    ->options([
+                        'Jakarta Pusat' => 'Jakarta Pusat',
+                        'Jakarta Selatan' => 'Jakarta Selatan',
+                        'Jakarta Utara' => 'Jakarta Utara',
+                        'Jakarta Barat' => 'Jakarta Barat',
+                        'Jakarta Timur' => 'Jakarta Timur',
+                        'Tangerang' => 'Tangerang',
+                        'Bekasi' => 'Bekasi',
+                        'Bandung' => 'Bandung',
+                        'Surabaya' => 'Surabaya',
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (! empty($data['values'])) {
+                            $query->where(function ($q) use ($data) {
+                                foreach ($data['values'] as $value) {
+                                    $q->orWhereJsonContains('extras->dealer_branch', $value);
+                                }
+                            });
+                        }
+                    }),
+                    
+                // Filter khusus Mitsubishi - Vehicle
+                SelectFilter::make('vehicle')
+                    ->label('Kendaraan')
+                    ->multiple()
+                    ->options([
+                        'destinator' => 'Destinator',
+                        'xpander' => 'Xpander',
+                        'xforce' => 'Xforce',
+                        'pajero_sport' => 'Pajero Sport',
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (! empty($data['values'])) {
+                            $query->where(function ($q) use ($data) {
+                                foreach ($data['values'] as $value) {
+                                    $q->orWhereJsonContains('extras->vehicle', $value);
                                 }
                             });
                         }
@@ -316,10 +423,11 @@ class RegistrationResource extends Resource
                         Select::make('type')
                             ->label('Pilih Tipe')
                             ->options([
-                                'all' => 'Semua (Karang Taruna, Umum & VIP)',
-                                'regular' => 'Karang Taruna',
+                                'all' => 'Semua (Karang Taruna, Umum, VIP & Mitsubishi)',
+                                'karang_taruna' => 'Karang Taruna',
                                 'umum' => 'Umum',
                                 'vip' => 'VIP/VVIP',
+                                'mitsubishi_iims' => 'Mitsubishi IIMS',
                             ])
                             ->required()
                             ->default('all'),
