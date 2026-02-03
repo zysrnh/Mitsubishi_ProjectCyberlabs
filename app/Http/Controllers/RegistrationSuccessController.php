@@ -16,6 +16,7 @@ class RegistrationSuccessController extends Controller
         return Inertia::render('RegistrationSuccess', [
             'is_approved' => $registration->is_approved,
             'qr_full_path' => $registration->qr_path ?? '',
+            'registration' => $registration,
             'images' => [
                 'logo_ikaismei' => asset('images/logo-ika-ismei_compressed.png'),
             ],

@@ -58,8 +58,16 @@ class Registration extends Model
     {
         return [
             'extras' => 'array',
+            'is_approved' => 'boolean',
+            'has_attended' => 'boolean',
+            'approved_at' => 'datetime',
+            'attended_at' => 'datetime',
+            'last_blasted_at' => 'datetime',
+            'last_successful_sent_at' => 'datetime',
         ];
     }
+
+    // ==================== QR Code Attributes ====================
 
     protected function qrPath(): Attribute
     {
@@ -81,6 +89,45 @@ class Registration extends Model
             get: fn() => 'qr_codes/' . $this->unique_code . '.png'
         );
     }
+
+    // ==================== Extras Accessors ====================
+    // Tambahkan di bagian Extras Accessors
+
+    public function getRegionAttribute()
+    {
+        return $this->extras['region'] ?? null;
+    }
+    public function getOrganizationAttribute()
+    {
+        return $this->extras['organization'] ?? null;
+    }
+
+    public function getPositionAttribute()
+    {
+        return $this->extras['position'] ?? null;
+    }
+
+    public function getShirtNumberAttribute()
+    {
+        return $this->extras['shirt_number'] ?? null;
+    }
+
+    public function getEventNameAttribute()
+    {
+        return $this->extras['event_name'] ?? null;
+    }
+
+    public function getTypeAttribute()
+    {
+        return $this->extras['type'] ?? null;
+    }
+
+    public function getHasSessionAttribute()
+    {
+        return $this->extras['has_session'] ?? false;
+    }
+
+    // ==================== WhatsApp Status Methods ====================
 
     public function getMessageStatusAttribute()
     {
@@ -112,6 +159,8 @@ class Registration extends Model
             ->count();
     }
 
+    // ==================== Helper Methods ====================
+
     /**
      * Generate a unique code.
      *
@@ -132,6 +181,8 @@ class Registration extends Model
         return $code;
     }
 
+    // ==================== Relationships ====================
+
     public function seat()
     {
         return $this->hasOne(Seat::class);
@@ -140,5 +191,32 @@ class Registration extends Model
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function twilioLogs()
+    {
+        return $this->hasMany(TwilioLog::class);
+    }
+
+    public function latestTwilioLog()
+    {
+        return $this->hasOne(TwilioLog::class)->latestOfMany();
+    }
+
+    // ==================== Query Scopes ====================
+
+    public function scopeApproved($query)
+    {
+        return $query->where('is_approved', true);
+    }
+
+    public function scopeAttended($query)
+    {
+        return $query->where('has_attended', true);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('is_approved', false);
     }
 }

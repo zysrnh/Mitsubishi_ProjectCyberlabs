@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Header, Footer } from "@/components/layouts";
 import { Button } from "@/components/forms";
 
-export default function RegistrationWelcome({ images, title, redirectTo }) {
+export default function VipConfirmationWelcome({ images, title, redirectTo }) {
   const [isLoading, setLoading] = useState(false);
 
   const handleRedirect = () => {
@@ -13,15 +13,15 @@ export default function RegistrationWelcome({ images, title, redirectTo }) {
 
   return (
     <>
-      <Head title="Registration - Welcome" />
+      <Head title="Konfirmasi Kehadiran - Welcome" />
       <div className="bg-white min-h-screen flex flex-col justify-between">
         <main className="flex-1 flex flex-col justify-center items-center px-4 py-12">
-          {/* Logo RakerB */}
+          {/* Logo */}
           <div className="mb-8 animate-fade-in-down">
             <img
               src="/images/KarangTaruna.png"
               className="w-80 md:w-96 h-auto transition-all duration-300 hover:scale-105"
-              alt="Logo RakerB"
+              alt="Logo Karang Taruna"
             />
           </div>
 
@@ -60,9 +60,16 @@ export default function RegistrationWelcome({ images, title, redirectTo }) {
                   </p>
                 </div>
               </div>
+
+              {/* VIP Badge */}
+              <div className="mt-6 inline-block px-6 py-3 rounded-full" style={{ backgroundColor: 'rgba(40, 55, 122, 0.1)', border: '2px solid #28377a' }}>
+                <p className="lexend text-lg md:text-xl font-bold" style={{ color: '#28377a' }}>
+                  🌟 KONFIRMASI KEHADIRAN VIP & VVIP 🌟
+                </p>
+              </div>
             </div>
 
-            {/* Registration Button */}
+            {/* Confirmation Button */}
             <div className="mt-12 px-4 md:px-8 animate-fade-in-up-delayed">
               <button
                 onClick={handleRedirect}
@@ -79,7 +86,7 @@ export default function RegistrationWelcome({ images, title, redirectTo }) {
                     Memproses...
                   </span>
                 ) : (
-                  'Daftar Sekarang'
+                  'Konfirmasi Kehadiran'
                 )}
               </button>
 

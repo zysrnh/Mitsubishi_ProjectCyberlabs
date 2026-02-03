@@ -1,17 +1,14 @@
 import { Head, useForm, usePage } from "@inertiajs/react";
 import z from "zod";
 import { useToast } from "@/hooks";
-import { Header, Footer } from "@/components/layouts";
-import { InputField, SelectField, Button } from "@/components/forms";
 
-export default function Inauguration({ images }) {
+export default function VipConfirmation({ images }) {
   const { flash } = usePage().props;
   const { data, setData, post, processing, errors, reset, setError } = useForm({
     name: "",
     phone: "",
     email: "",
-    region: "",
-    position: "",
+    institution: "",
   });
   useToast(flash?.info);
 
@@ -22,8 +19,7 @@ export default function Inauguration({ images }) {
         "Nomor telepon tidak valid harus diawali '+62' atau '0' dan min. 10 digit.",
     }),
     email: z.string().email({ message: "Email tidak valid." }).optional().or(z.literal("")),
-    region: z.string().min(1, { message: "Tingkatan wajib diisi." }),
-    position: z.string().min(1, { message: "Jabatan wajib diisi." }),
+    institution: z.string().min(1, { message: "Instansi wajib diisi." }),
   });
 
   const handleChange = ({ target: { name, value } }) => {
@@ -46,15 +42,14 @@ export default function Inauguration({ images }) {
     }
 
     setError({});
-    post(route("karang_taruna.submit_form"), {
+    post(route("vip.submit_confirmation"), {
       onSuccess: (page) => {
         reset();
         setData({
           name: "",
           phone: "",
           email: "",
-          region: "",
-          position: "",
+          institution: "",
         });
       },
     });
@@ -62,7 +57,7 @@ export default function Inauguration({ images }) {
 
   return (
     <>
-      <Head title="Registrasi - Karang Taruna" />
+      <Head title="Konfirmasi Kehadiran - VIP/VVIP" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
         
@@ -76,56 +71,17 @@ export default function Inauguration({ images }) {
           color: #9ca3af;
         }
         
-        /* Konsistensi ukuran font untuk semua input dan select */
+        /* Konsistensi ukuran font untuk semua input */
         input[type="text"],
         input[type="tel"],
-        input[type="email"],
-        select {
+        input[type="email"] {
           font-size: 0.875rem;
-        }
-        
-        /* Styling untuk select dropdown */
-        select {
-          appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2328377a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 0.75rem center;
-          background-size: 1.25rem;
-          padding-right: 2.5rem;
-          cursor: pointer;
-          color: #374151;
-        }
-        
-        /* Placeholder style untuk select */
-        select option:first-child {
-          color: #9ca3af;
-        }
-        
-        select:invalid {
-          color: #9ca3af;
-        }
-        
-        select option {
-          color: #374151;
-        }
-        
-        /* Hide required asterisk */
-        label abbr[title="required"],
-        label .text-red-500 {
-          display: none !important;
-        }
-        
-        /* Hide asterisk in all possible formats */
-        label span[style*="color: red"],
-        label span.required {
-          display: none !important;
         }
         
         /* Enhanced stroke/border for input fields */
         input[type="text"],
         input[type="tel"],
-        input[type="email"],
-        select {
+        input[type="email"] {
           border: 2px solid #28377a !important;
           box-shadow: 0 2px 4px rgba(40, 55, 122, 0.1);
           transition: all 0.2s ease;
@@ -133,8 +89,7 @@ export default function Inauguration({ images }) {
         
         input[type="text"]:focus,
         input[type="tel"]:focus,
-        input[type="email"]:focus,
-        select:focus {
+        input[type="email"]:focus {
           border: 2px solid #1e2a5a !important;
           box-shadow: 0 0 0 3px rgba(40, 55, 122, 0.15);
           transform: translateY(-1px);
@@ -142,8 +97,7 @@ export default function Inauguration({ images }) {
         
         input[type="text"]:hover,
         input[type="tel"]:hover,
-        input[type="email"]:hover,
-        select:hover {
+        input[type="email"]:hover {
           border-color: #1e2a5a !important;
           box-shadow: 0 4px 6px rgba(40, 55, 122, 0.15);
         }
@@ -153,8 +107,7 @@ export default function Inauguration({ images }) {
           position: relative;
         }
         
-        .input-with-icon input,
-        .input-with-icon select {
+        .input-with-icon input {
           padding-left: 1rem;
           padding-right: 2.75rem;
         }
@@ -261,7 +214,7 @@ export default function Inauguration({ images }) {
             className="montserrat-bold text-xl md:text-2xl lg:text-3xl text-center mb-8 animate-title px-4"
             style={{ color: "#28377a" }}
           >
-            SELAMAT DATANG DI ACARA<br />PENGUKUHAN PENGURUS NASIONAL KARANG TARUNA
+            KONFIRMASI KEHADIRAN<br />VIP & VVIP
           </h1>
 
           {/* Form Container */}
@@ -273,7 +226,7 @@ export default function Inauguration({ images }) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                 </svg>
                 <p className="text-sm text-amber-800 font-medium">
-                  <strong>Penting:</strong> Pastikan nomor telepon yang Anda masukkan adalah <strong>nomor WhatsApp aktif</strong>, karena QR code akan dikirim melalui WhatsApp.
+                  <strong>Penting:</strong> Pastikan nomor telepon yang Anda masukkan adalah <strong>nomor WhatsApp aktif</strong>, karena konfirmasi akan dikirim melalui WhatsApp.
                 </p>
               </div>
             </div>
@@ -346,45 +299,23 @@ export default function Inauguration({ images }) {
                 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Tingkatan <span className="text-red-500">*</span>
-                  </label>
-                  <div className="input-with-icon">
-                    <select
-                      name="region"
-                      value={data.region}
-                      onChange={handleChange}
-                      required
-                      className="border-2 rounded-lg py-2.5 w-full focus:outline-none"
-                    >
-                      <option value="">-- Pilih Tingkatan --</option>
-                      <option value="Pengurus Nasional Karang Taruna (PNKT)">Pengurus Nasional Karang Taruna (PNKT)</option>
-                      <option value="Pengurus Provinsi Karang Taruna (PPKT)">Pengurus Provinsi Karang Taruna (PPKT)</option>
-                    </select>
-                  </div>
-                  {errors?.region && <p className="text-red-500 text-xs mt-1">{errors.region}</p>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 form-field">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Jabatan <span className="text-red-500">*</span>
+                    Instansi <span className="text-red-500">*</span>
                   </label>
                   <div className="input-with-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="input-icon">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
                     </svg>
                     <input
                       type="text"
-                      name="position"
-                      placeholder="Contoh: Ketua, Sekretaris, Anggota"
-                      value={data.position}
+                      name="institution"
+                      placeholder="Nama Instansi/Lembaga"
+                      value={data.institution}
                       onChange={handleChange}
                       className="border-2 rounded-lg py-2.5 w-full focus:outline-none"
                       required
                     />
                   </div>
-                  {errors?.position && <p className="text-red-500 text-xs mt-1">{errors.position}</p>}
+                  {errors?.institution && <p className="text-red-500 text-xs mt-1">{errors.institution}</p>}
                 </div>
               </div>
 
@@ -395,7 +326,7 @@ export default function Inauguration({ images }) {
                   className="w-full py-3 px-4 text-white text-sm font-semibold rounded-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: "#28377a" }}
                 >
-                  {processing ? "Mengirim..." : "Kirim"}
+                  {processing ? "Mengirim..." : "Konfirmasi Kehadiran"}
                 </button>
               </div>
             </form>

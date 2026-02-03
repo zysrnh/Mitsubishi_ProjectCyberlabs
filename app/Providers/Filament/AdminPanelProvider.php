@@ -28,11 +28,39 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->id('admin')
             ->path('admin')
-            ->brandName('ALCO Ticketing System')
-            ->brandLogo(asset('images/Logo-Alco.png'))
+            ->brandName('RAKERNAS')
+            ->brandLogo(asset('images/Only.png'))
             ->brandLogoHeight('3rem')
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => [
+                    50 => '#f0f2f9',
+                    100 => '#e1e5f3',
+                    200 => '#c3cbe7',
+                    300 => '#9aa8d8',
+                    400 => '#7080c5',
+                    500 => '#28377a',  // Warna utama #28377a
+                    600 => '#202b63',
+                    700 => '#1a234f',
+                    800 => '#131b3b',
+                    900 => '#0d1428',
+                    950 => '#080c19',
+                ],
+                'warning' => [
+                    50 => '#fefce8',
+                    100 => '#fef9c3',
+                    200 => '#fef08a',
+                    300 => '#fde047',
+                    400 => '#facc15',
+                    500 => '#eab308',
+                    600 => '#ca8a04',
+                    700 => '#a16207',
+                    800 => '#854d0e',
+                    900 => '#713f12',
+                    950 => '#422006',
+                ],
+                'success' => Color::Green,
+                'danger' => Color::Red,
+                'info' => Color::Teal,
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')

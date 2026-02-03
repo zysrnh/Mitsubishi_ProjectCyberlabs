@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\EventName;
 use App\Exceptions\TwilioConfigurationException;
 use App\Exceptions\TwilioMessageException;
 use App\Models\Registration;
@@ -38,13 +37,7 @@ class TwilioService
         $messagingServiceSid = $messagingServiceSid ?? config('twilio.messaging_service_sid');
 
         try {
-            $eventName = match ($registration->extras['event_name']) {
-                EventName::SEMINAR->value => 'Seminar',
-                EventName::INAUGURATION->value => 'Pelantikan',
-                default => '-',
-            };
-            
-            $contentVariables = $this->buildContentVariables($filename, $eventName);
+            $contentVariables = $this->buildContentVariables($filename);
 
             $messageInstance = $this->sendMessage($recipientNumber, [
                 'contentSid' => $contentSid,
@@ -98,11 +91,10 @@ class TwilioService
         );
     }
 
-    private function buildContentVariables(string $filename, string $eventName): string
+    private function buildContentVariables(string $filename): string
     {
         return json_encode([
             '1' => $filename,
-            '2' => $eventName,
         ]);
     }
 

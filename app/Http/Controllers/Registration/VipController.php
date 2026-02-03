@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Registration;
 
-use App\Enums\EventName;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateQr;
 use App\Jobs\SendQrToWhatsapp;
@@ -12,13 +11,13 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
-class InaugurationController extends Controller
+class VipController extends Controller
 {
     public function showWelcome()
     {
-        return Inertia::render('RegistrationWelcome', [
-            'redirectTo' => route('karang_taruna.show_form'),
-            'title' => 'Registrasi Karang Taruna',
+        return Inertia::render('VipConfirmationWelcome', [
+            'redirectTo' => route('vip.show_confirmation'),
+            'title' => 'Konfirmasi Kehadiran VIP & VVIP',
             'images' => [
                 'logo_ikaismei' => asset('images/logo-ika-ismei_compressed.png'),
                 'people_pic' => asset('images/FOTO-ORANG_compressed.png'),
@@ -26,23 +25,22 @@ class InaugurationController extends Controller
         ]);
     }
 
-    public function showForm()
+    public function showConfirmation()
     {
-        return Inertia::render('Registration/Inauguration', [
+        return Inertia::render('Registration/VipConfirmation', [
             'images' => [
                 'logo_ikaismei' => asset('images/logo-ika-ismei_compressed.png'),
             ],
         ]);
     }
 
-    public function submitForm(Request $request)
+    public function submitConfirmation(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'max:255'],
             'phone' => ['required', 'regex:/^(\+?62|0)\d{8,}$/'],
             'email' => ['nullable', 'email', 'max:255'],
-            'region' => ['required', 'max:255'],
-            'position' => ['required', 'max:255'],
+            'institution' => ['required', 'max:255'],
         ]);
 
         $registration = Registration::create([
@@ -52,14 +50,24 @@ class InaugurationController extends Controller
             'is_approved' => true,
             'approved_at' => now(),
             'extras' => [
-                'type' => 'karang_taruna',
+                'type' => 'vip',
                 'has_session' => false,
-                'region' => $validated['region'],
-                'position' => $validated['position'],
+                'institution' => $validated['institution'],
             ],
         ]);
 
+        // Generate QR Code
         GenerateQr::dispatchSync($registration);
+
+        // Kirim QR ke WhatsApp
+        Bus::chain([
+            new SendQrToWhatsapp($registration),
+        ])->dispatch();
+
+        // Update timestamp pengiriman WhatsApp
+        $registration->update([
+            'last_blasted_at' => now(),
+        ]);
 
         $signedUrl = URL::temporarySignedRoute(
             'registration_success',
@@ -68,7 +76,7 @@ class InaugurationController extends Controller
         );
 
         return redirect($signedUrl)->with('info', [
-            'success' => 'Berhasil mendaftar. QR code akan dikirim melalui WhatsApp.',
+            'success' => 'Konfirmasi kehadiran berhasil. QR code akan dikirim melalui WhatsApp.',
         ]);
     }
 }
