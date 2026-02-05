@@ -6,7 +6,7 @@ import { faClock } from "@fortawesome/free-solid-svg-icons";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 
 
-const SuccessMessage = ({ registrationType }) => {
+const SuccessMessage = ({ registrationType, registration }) => {
   const showIdCardInfo =
     registrationType === "vip" || registrationType === "karang_taruna";
 
@@ -45,6 +45,27 @@ const SuccessMessage = ({ registrationType }) => {
           QR Code akan dikirimkan melalui WhatsApp Anda.
         </p>
       </div>
+
+      {/* Show QR result if available */}
+      {registration?.qr_url && (
+        <div className="rounded-xl p-6 bg-white shadow-md" style={{ border: "2px solid rgba(200, 16, 46, 0.2)" }}>
+          <p className="text-sm font-semibold mb-4 primary-text">QR Code Anda</p>
+          <div className="bg-white p-4 rounded-lg inline-block">
+            <img src={registration.qr_url} alt="QR Code" className="w-48 h-48 mx-auto" onError={e => {e.target.onerror=null;e.target.src='/images/no-qr.png';}} />
+          </div>
+          <p className="text-xs text-gray-500 mt-3 mb-3">
+            Kode Unik: <span className="font-bold primary-text">{registration?.unique_code}</span>
+          </p>
+          <a
+            href={registration.qr_url}
+            download={`QR-${registration?.unique_code}.png`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+            style={{ backgroundColor: "#C8102E" }}
+          >
+            Download QR Code
+          </a>
+        </div>
+      )}
 
       {needsAdminVerification && (
         <div
@@ -121,7 +142,7 @@ export default function RegistrationSuccess({
           <div className="w-full max-w-3xl mb-12 animate-grid">
             <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
               <div className="flex justify-center">
-                <SuccessMessage registrationType={registrationType} />
+                <SuccessMessage registrationType={registrationType} registration={registration} />
               </div>
             </div>
           </div>
