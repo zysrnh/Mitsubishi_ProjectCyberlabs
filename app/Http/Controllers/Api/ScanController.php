@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Registration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ScanController extends Controller
 {
@@ -23,9 +24,7 @@ class ScanController extends Controller
         ]);
 
         // Find registration
-        $registration = Registration::with(['seat', 'event'])
-            ->where('unique_code', $validated['unique_code'])
-            ->first();
+        $registration = Registration::where('unique_code', $validated['unique_code'])->first();
 
         // If not found
         if (!$registration) {
@@ -36,21 +35,14 @@ class ScanController extends Controller
             ], 404);
         }
 
-        // If not approved
-        if (!$registration->is_approved) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Registrasi belum disetujui. Hubungi panitia untuk approval.',
-                'data'    => $registration,
-            ], 403);
-        }
+        // VALIDASI APPROVAL SUDAH DIHAPUS - langsung bisa absen tanpa perlu approval
 
         // If override flag is set — just return model without marking
         if (!empty($validated['override']) && $validated['override']) {
             return response()->json([
                 'success' => true,
                 'message' => 'Mode override aktif - data ditampilkan tanpa mencatat kehadiran.',
-                'data'    => $registration,
+                'data'    => $this->formatRegistrationResponse($registration),
             ], 200);
         }
 
@@ -60,25 +52,41 @@ class ScanController extends Controller
                 'success' => false,
                 'message' => 'Peserta sudah melakukan check-in pada ' . 
                            $registration->attended_at->format('d M Y H:i') . '.',
-                'data'    => $registration,
+                'data'    => $this->formatRegistrationResponse($registration),
             ], 409); // Conflict
         }
 
         // Mark attendance
-        $registration->update([
-            'attended_at'  => now(),
-            'has_attended' => true,
-        ]);
+        try {
+            $registration->markAsAttended();
+            
+            // Reload to get fresh data
+            $registration->refresh();
 
-        // Reload to get fresh data with relationships
-        $registration->refresh();
-        $registration->load(['seat', 'event']);
+            // Log successful attendance
+            Log::info('Attendance marked successfully', [
+                'unique_code' => $registration->unique_code,
+                'name' => $registration->name,
+                'attended_at' => $registration->attended_at,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kehadiran berhasil dicatat! Selamat datang ' . $registration->name . '.',
-            'data'    => $registration,
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Kehadiran berhasil dicatat! Selamat datang ' . $registration->name . '.',
+                'data'    => $this->formatRegistrationResponse($registration),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to mark attendance', [
+                'unique_code' => $validated['unique_code'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mencatat kehadiran. Silakan coba lagi.',
+                'data'    => null,
+            ], 500);
+        }
     }
 
     /**
@@ -94,9 +102,7 @@ class ScanController extends Controller
             'unique_code' => 'required|string',
         ]);
 
-        $registration = Registration::with(['seat', 'event'])
-            ->where('unique_code', $validated['unique_code'])
-            ->first();
+        $registration = Registration::where('unique_code', $validated['unique_code'])->first();
 
         if (!$registration) {
             return response()->json([
@@ -109,7 +115,7 @@ class ScanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data registrasi ditemukan.',
-            'data'    => $registration,
+            'data'    => $this->formatRegistrationResponse($registration),
         ], 200);
     }
 
@@ -163,8 +169,7 @@ class ScanController extends Controller
         $limit = $request->get('limit', 10);
         $eventId = $request->get('event_id');
 
-        $query = Registration::with(['seat', 'event'])
-            ->where('has_attended', true)
+        $query = Registration::where('has_attended', true)
             ->whereNotNull('attended_at')
             ->orderBy('attended_at', 'desc');
 
@@ -177,7 +182,46 @@ class ScanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Daftar kehadiran terbaru berhasil dimuat.',
-            'data' => $recentAttendance,
+            'data' => $recentAttendance->map(function ($registration) {
+                return $this->formatRegistrationResponse($registration);
+            }),
         ], 200);
+    }
+
+    /**
+     * Format registration response to match Flutter model expectations
+     *
+     * @param Registration $registration
+     * @return array
+     */
+    private function formatRegistrationResponse(Registration $registration): array
+    {
+        return [
+            'id' => $registration->id,
+            'name' => $registration->name,
+            'email' => $registration->email,
+            'phone' => $registration->phone,
+            'unique_code' => $registration->unique_code,
+            'has_attended' => $registration->has_attended,
+            'is_approved' => $registration->is_approved,
+            'approved_at' => $registration->approved_at?->toIso8601String(),
+            'attended_at' => $registration->attended_at?->toIso8601String(),
+            'last_blasted_at' => $registration->last_blasted_at?->toIso8601String(),
+            'last_successful_sent_at' => $registration->last_successful_sent_at?->toIso8601String(),
+            'whatsapp_send_attempts' => $registration->whatsapp_send_attempts,
+            'extras' => $registration->extras,
+            'event_id' => $registration->event_id,
+            'deleted_at' => $registration->deleted_at,
+            'created_at' => $registration->created_at?->toIso8601String(),
+            'updated_at' => $registration->updated_at?->toIso8601String(),
+            'qr_path' => $registration->qr_path,
+            'qr_full_path' => $registration->qr_full_path,
+            'message_status' => $registration->message_status ?? null,
+            // Mitsubishi-specific fields (from extras accessors)
+            'vehicle' => $registration->vehicle,
+            'dealer_branch' => $registration->dealer_branch,
+            'assistant_sales' => $registration->assistant_sales,
+            'dealer' => $registration->dealer,
+        ];
     }
 }
