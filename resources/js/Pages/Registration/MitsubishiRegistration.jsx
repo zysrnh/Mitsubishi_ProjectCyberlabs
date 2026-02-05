@@ -14,40 +14,50 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
   });
 
   const handleChange = ({ target: { name, value, type, checked } }) => {
-    setData(name, type === 'checkbox' ? checked : value);
+    setData(name, type === "checkbox" ? checked : value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     post(route("mitsubishi.submit_form"), {
-      onSuccess: () => {
-        // Success akan auto redirect ke success page dari controller
-      },
       onError: (errors) => {
-        console.error('Validation errors:', errors);
-      }
+        console.error("Validation errors:", errors);
+      },
     });
   };
 
   return (
     <>
       <Head title="Registration - Mitsubishi Motors" />
+
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap');
-        
-        .montserrat-bold {
-          font-family: 'Montserrat', sans-serif;
+        @font-face {
+          font-family: 'mmcoffice';
+          src: url('/fonts/mmcoffice-regular.ttf') format('truetype');
+          font-weight: 400;
+        }
+
+        @font-face {
+          font-family: 'mmcoffice';
+          src: url('/fonts/mmcoffice-bold.ttf') format('truetype');
           font-weight: 700;
         }
 
-        .montserrat-extrabold {
-          font-family: 'Montserrat', sans-serif;
-          font-weight: 800;
+        * {
+          font-family: 'mmcoffice', sans-serif;
         }
 
-        .inter-font {
-          font-family: 'Inter', sans-serif;
+        .primary-text {
+          color: #C8102E;
+        }
+        
+        .black-text {
+          color: #000000;
+        }
+
+        .gradient-bg {
+          background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         input::placeholder,
@@ -56,12 +66,17 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
           font-size: 0.875rem;
         }
 
-        input[type="text"],
-        input[type="tel"],
-        input[type="email"],
+        input,
         select {
-          font-size: 0.875rem;
-          font-family: 'Inter', sans-serif;
+          border: 1px solid #d1d5db;
+          transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+          border-color: #C8102E;
+          box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+          outline: none;
         }
 
         select {
@@ -71,36 +86,9 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
           background-position: right 0.75rem center;
           background-size: 1.25rem;
           padding-right: 2.5rem;
-          cursor: pointer;
-        }
-
-        select:invalid {
-          color: #9ca3af;
-        }
-
-        input[type="text"],
-        input[type="tel"],
-        input[type="email"],
-        select {
-          border: 1px solid #d1d5db;
-          transition: all 0.2s ease;
-        }
-
-        input[type="text"]:focus,
-        input[type="tel"]:focus,
-        input[type="email"]:focus,
-        select:focus {
-          border-color: #C8102E;
-          box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
-          outline: none;
         }
 
         input[type="checkbox"] {
-          width: 1.25rem;
-          height: 1.25rem;
-          border: 2px solid #d1d5db;
-          border-radius: 0.25rem;
-          cursor: pointer;
           accent-color: #C8102E;
         }
 
@@ -138,10 +126,6 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
           animation: fadeInUp 1s ease-out 0.4s both;
         }
 
-        .gradient-bg {
-          background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
         .cityscape-img {
           opacity: 0.3;
           filter: grayscale(1);
@@ -149,223 +133,199 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
       `}</style>
 
       <div className="min-h-screen gradient-bg flex flex-col">
-        {/* Main Content */}
         <div className="flex-1 flex flex-col items-center px-4 py-8 md:py-12">
+
           {/* Logo */}
           <div className="mb-6 animate-logo">
-            <div className="text-center">
-              <div className="mb-3">
-                <svg 
-                  viewBox="0 0 200 100" 
-                  className="h-16 md:h-20 mx-auto"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polygon points="100,10 120,40 80,40" fill="#C8102E"/>
-                  <polygon points="80,40 100,70 60,55" fill="#C8102E"/>
-                  <polygon points="120,40 140,55 100,70" fill="#C8102E"/>
-                </svg>
-              </div>
-              <div className="inter-font font-bold text-base md:text-lg tracking-wider">
-                MITSUBISHI MOTORS
-              </div>
-              <div className="inter-font text-xs mt-1 tracking-wide">
-                Drive your Ambition
-              </div>
-            </div>
+            <img
+              src="/images/mitsubishi-logo.png"
+              alt="Mitsubishi Motors Logo"
+              className="h-20 md:h-24 mx-auto object-contain"
+            />
           </div>
 
           {/* Title */}
-          <h1 className="montserrat-extrabold text-xl md:text-3xl text-center mb-2 animate-title">
+          <h1 className="text-xl md:text-3xl text-center mb-10 animate-title black-text font-bold">
             INDONESIA INTERNATIONAL<br />
             MOTOR SHOW
           </h1>
 
-          {/* Selected Vehicle Badge */}
-          {selectedVehicle && (
-            <div className="mb-6 animate-form">
-              <div className="bg-[#C8102E] text-white px-6 py-2 rounded-full">
-                <span className="inter-font font-semibold text-sm">
-                  Test Drive: {selectedVehicle.name}
-                </span>
-              </div>
-            </div>
-          )}
-
           {/* Form Container */}
           <div className="w-full max-w-lg animate-form mb-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name & Phone */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={data.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                    required
-                  />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            <div className="bg-white rounded-3xl shadow-xl p-6 md:p-10">
+              <form onSubmit={handleSubmit} className="space-y-4">
+
+                {/* Name & Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={data.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      required
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={data.phone}
+                      onChange={handleChange}
+                      placeholder="08123456789"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      required
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                    )}
+                  </div>
                 </div>
 
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={data.phone}
-                    onChange={handleChange}
-                    placeholder="08123456789"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                    required
-                  />
-                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                </div>
-              </div>
+                {/* Email & Assistant */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      E-mail Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={data.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      required
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                    )}
+                  </div>
 
-              {/* Email & Assistant Sales */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    E-mail Address *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={data.email}
-                    onChange={handleChange}
-                    placeholder="email@example.com"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                    required
-                  />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Assistant Sales Name
+                    </label>
+                    <input
+                      type="text"
+                      name="assistant_sales"
+                      value={data.assistant_sales}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Assistant Sales Name
-                  </label>
-                  <input
-                    type="text"
-                    name="assistant_sales"
-                    value={data.assistant_sales}
-                    onChange={handleChange}
-                    placeholder="Optional"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                  />
-                </div>
-              </div>
+                {/* Dealer & Branch */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Sales Dealer
+                    </label>
+                    <input
+                      type="text"
+                      name="dealer"
+                      value={data.dealer}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                    />
+                  </div>
 
-              {/* Sales Dealer & Dealer Branch */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Sales Dealer
-                  </label>
-                  <input
-                    type="text"
-                    name="dealer"
-                    value={data.dealer}
-                    onChange={handleChange}
-                    placeholder="Optional"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                  />
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Dealer Branch *
+                    </label>
+                    <select
+                      name="dealer_branch"
+                      value={data.dealer_branch}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      required
+                    >
+                      <option value="">Select Dealer Branch</option>
+                      <option value="Jakarta Pusat">Jakarta Pusat</option>
+                      <option value="Jakarta Selatan">Jakarta Selatan</option>
+                      <option value="Jakarta Utara">Jakarta Utara</option>
+                      <option value="Jakarta Barat">Jakarta Barat</option>
+                      <option value="Jakarta Timur">Jakarta Timur</option>
+                      <option value="Tangerang">Tangerang</option>
+                      <option value="Bekasi">Bekasi</option>
+                      <option value="Bandung">Bandung</option>
+                      <option value="Surabaya">Surabaya</option>
+                    </select>
+                    {errors.dealer_branch && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.dealer_branch}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div>
-                  <label className="inter-font text-sm font-medium text-gray-700 mb-1.5 block">
-                    Dealer Branch *
-                  </label>
-                  <select
-                    name="dealer_branch"
-                    value={data.dealer_branch}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-white"
-                    required
+                {/* Terms */}
+                <div className="pt-3 text-center">
+                  <p className="text-sm text-gray-700 mb-3">
+                    Do you accept the terms and conditions by registering?
+                  </p>
+
+                  <div className="flex items-center justify-center gap-3">
+                    <input
+                      type="checkbox"
+                      name="agree_terms"
+                      id="agree_terms"
+                      checked={data.agree_terms}
+                      onChange={handleChange}
+                      required
+                    />
+                    <label
+                      htmlFor="agree_terms"
+                      className="text-sm text-gray-700 cursor-pointer"
+                    >
+                      I agree to the terms and conditions
+                    </label>
+                  </div>
+
+                  {errors.agree_terms && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.agree_terms}
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit */}
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={processing}
+                    className="w-full bg-[#C8102E] text-white font-bold text-base md:text-lg py-3.5 rounded-full shadow-lg hover:bg-[#A00D26] transition-all duration-300 disabled:opacity-50"
                   >
-                    <option value="">Select Dealer Branch</option>
-                    <option value="Jakarta Pusat">Jakarta Pusat</option>
-                    <option value="Jakarta Selatan">Jakarta Selatan</option>
-                    <option value="Jakarta Utara">Jakarta Utara</option>
-                    <option value="Jakarta Barat">Jakarta Barat</option>
-                    <option value="Jakarta Timur">Jakarta Timur</option>
-                    <option value="Tangerang">Tangerang</option>
-                    <option value="Bekasi">Bekasi</option>
-                    <option value="Bandung">Bandung</option>
-                    <option value="Surabaya">Surabaya</option>
-                  </select>
-                  {errors.dealer_branch && <p className="text-red-500 text-xs mt-1">{errors.dealer_branch}</p>}
+                    {processing ? "SUBMITTING..." : "SUBMIT"}
+                  </button>
                 </div>
-              </div>
 
-              {/* Terms and Conditions */}
-              <div className="pt-3">
-                <p className="inter-font text-sm text-center text-gray-700 mb-3">
-                  Do you accept the terms and conditions by registrating?
-                </p>
-                <div className="flex items-center justify-center gap-3">
-                  <input
-                    type="checkbox"
-                    name="agree_terms"
-                    id="agree_terms"
-                    checked={data.agree_terms}
-                    onChange={handleChange}
-                    required
-                  />
-                  <label 
-                    htmlFor="agree_terms" 
-                    className="inter-font text-sm text-gray-700 cursor-pointer"
-                  >
-                    I agree to the terms and conditions
-                  </label>
-                </div>
-                {errors.agree_terms && <p className="text-red-500 text-xs mt-1 text-center">{errors.agree_terms}</p>}
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={processing}
-                  className="w-full bg-[#C8102E] text-white montserrat-bold text-base md:text-lg py-3.5 rounded-full shadow-lg hover:bg-[#A00D26] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
-                >
-                  {processing ? "SUBMITTING..." : "SUBMIT"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
 
         {/* Cityscape */}
-        <div className="h-40 md:h-48 w-full">
+        <div className="cityscape-container h-48 md:h-64 w-full animate-cityscape -mb-12 md:-mb-20">
           <div className="relative h-full flex items-end justify-center">
-            <svg 
-              viewBox="0 0 1200 250" 
-              className="cityscape-img w-full h-full"
-              preserveAspectRatio="xMidYMax meet"
-            >
-              <polygon points="100,150 200,50 300,150" fill="#d1d5db" opacity="0.3"/>
-              <polygon points="250,150 350,30 450,150" fill="#d1d5db" opacity="0.25"/>
-              <polygon points="400,150 550,80 700,150" fill="#d1d5db" opacity="0.3"/>
-              <polygon points="650,150 800,60 950,150" fill="#d1d5db" opacity="0.25"/>
-              <polygon points="900,150 1000,40 1100,150" fill="#d1d5db" opacity="0.3"/>
-              
-              <rect x="150" y="100" width="60" height="150" fill="#9ca3af" opacity="0.4"/>
-              <rect x="250" y="120" width="50" height="130" fill="#9ca3af" opacity="0.35"/>
-              <rect x="330" y="90" width="70" height="160" fill="#9ca3af" opacity="0.45"/>
-              <rect x="430" y="110" width="55" height="140" fill="#9ca3af" opacity="0.4"/>
-              <rect x="515" y="80" width="65" height="170" fill="#9ca3af" opacity="0.5"/>
-              <rect x="610" y="105" width="50" height="145" fill="#9ca3af" opacity="0.35"/>
-              <rect x="690" y="95" width="60" height="155" fill="#9ca3af" opacity="0.45"/>
-              <rect x="780" y="115" width="55" height="135" fill="#9ca3af" opacity="0.4"/>
-              <rect x="865" y="85" width="70" height="165" fill="#9ca3af" opacity="0.5"/>
-              <rect x="965" y="100" width="60" height="150" fill="#9ca3af" opacity="0.4"/>
-            </svg>
+            <img
+              src="/images/cityspace.png"
+              alt="Cityscape"
+              className="w-full h-full object-cover object-top"
+            />
+
           </div>
         </div>
       </div>

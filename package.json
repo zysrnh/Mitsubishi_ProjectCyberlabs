@@ -16,6 +16,9 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^7.1.0",
+        "@fortawesome/free-solid-svg-icons": "^7.1.0",
+        "@fortawesome/react-fontawesome": "^3.1.1",
         "@inertiajs/react": "^2.0.17",
         "clsx": "^2.1.1",
         "lucide-react": "^0.553.0",
