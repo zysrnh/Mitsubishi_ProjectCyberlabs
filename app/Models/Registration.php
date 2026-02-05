@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Registration extends Model
 {
@@ -66,6 +67,16 @@ class Registration extends Model
         return Attribute::make(
             get: fn() => $this->qr_path 
                 ? asset('storage/' . $this->qr_path)
+                : null
+        );
+    }
+
+    // ✅ TAMBAHAN BARU - QR Full Path untuk WhatsApp
+    protected function qrFullPath(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->qr_path 
+                ? Storage::disk('public')->path($this->qr_path)
                 : null
         );
     }
