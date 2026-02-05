@@ -57,11 +57,15 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
         }
 
         .gradient-bg {
-          background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+          background: linear-gradient(180deg, #FAFAFA 0%, #E8E8E8 100%);
         }
 
-        input::placeholder,
-        select::placeholder {
+        label {
+          color: #000;
+          font-weight: 500;
+        }
+
+        input::placeholder {
           color: #9ca3af;
           font-size: 0.875rem;
         }
@@ -70,6 +74,7 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
         select {
           border: 1px solid #d1d5db;
           transition: all 0.2s ease;
+          background: #fff;
         }
 
         input:focus,
@@ -86,10 +91,18 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
           background-position: right 0.75rem center;
           background-size: 1.25rem;
           padding-right: 2.5rem;
+          color: #000;
+        }
+
+        select option {
+          color: #000;
         }
 
         input[type="checkbox"] {
           accent-color: #C8102E;
+          width: 1.25rem;
+          height: 1.25rem;
+          cursor: pointer;
         }
 
         @keyframes fadeInUp {
@@ -127,46 +140,52 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
         }
 
         .cityscape-img {
-          opacity: 0.3;
-          filter: grayscale(1);
+          opacity: 0.4;
+          filter: grayscale(0.8);
+        }
+
+        @media (max-width: 640px) {
+          input, select {
+            font-size: 14px;
+          }
         }
       `}</style>
 
       <div className="min-h-screen gradient-bg flex flex-col">
-        <div className="flex-1 flex flex-col items-center px-4 py-8 md:py-12">
+        <div className="flex-1 flex flex-col items-center px-4 py-6 sm:py-8 md:py-12">
 
           {/* Logo */}
-          <div className="mb-6 animate-logo">
+          <div className="mb-4 sm:mb-6 animate-logo pt-4 sm:pt-8">
             <img
               src="/images/mitsubishi-logo.png"
               alt="Mitsubishi Motors Logo"
-              className="h-20 md:h-24 mx-auto object-contain"
+              className="h-16 sm:h-20 md:h-24 lg:h-28 mx-auto object-contain"
             />
           </div>
 
           {/* Title */}
-          <h1 className="text-xl md:text-3xl text-center mb-10 animate-title black-text font-bold">
+          <h1 className="text-lg sm:text-xl md:text-3xl lg:text-4xl text-center mb-6 sm:mb-8 md:mb-10 animate-title black-text font-bold px-4">
             INDONESIA INTERNATIONAL<br />
             MOTOR SHOW
           </h1>
 
           {/* Form Container */}
-          <div className="w-full max-w-lg animate-form mb-8">
-            <div className="bg-white rounded-3xl shadow-xl p-6 md:p-10">
-              <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="w-full max-w-2xl animate-form mb-6 sm:mb-8 px-2 sm:px-4">
+            <div className="bg-white rounded-2xl sm:rounded-[2rem] shadow-xl p-4 sm:p-6 md:p-8 lg:p-12">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
                 {/* Name & Phone */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Full Name *
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
+                      Full Name
                     </label>
                     <input
                       type="text"
                       name="name"
                       value={data.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                       required
                     />
                     {errors.name && (
@@ -175,16 +194,15 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Phone Number *
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
+                      Phone Number
                     </label>
                     <input
                       type="tel"
                       name="phone"
                       value={data.phone}
                       onChange={handleChange}
-                      placeholder="08123456789"
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                       required
                     />
                     {errors.phone && (
@@ -194,17 +212,17 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                 </div>
 
                 {/* Email & Assistant */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      E-mail Address *
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
+                      E-mail Adress
                     </label>
                     <input
                       type="email"
                       name="email"
                       value={data.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                       required
                     />
                     {errors.email && (
@@ -213,7 +231,7 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
                       Assistant Sales Name
                     </label>
                     <input
@@ -221,15 +239,15 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                       name="assistant_sales"
                       value={data.assistant_sales}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                     />
                   </div>
                 </div>
 
                 {/* Dealer & Branch */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
                       Sales Dealer
                     </label>
                     <input
@@ -237,19 +255,19 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                       name="dealer"
                       value={data.dealer}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                      Dealer Branch *
+                    <label className="text-sm sm:text-base font-medium text-black mb-1.5 block">
+                      Dealer Branch
                     </label>
                     <select
                       name="dealer_branch"
                       value={data.dealer_branch}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white"
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-black"
                       required
                     >
                       <option value="">Select Dealer Branch</option>
@@ -272,12 +290,12 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                 </div>
 
                 {/* Terms */}
-                <div className="pt-3 text-center">
-                  <p className="text-sm text-gray-700 mb-3">
-                    Do you accept the terms and conditions by registering?
+                <div className="pt-2 sm:pt-3 text-center">
+                  <p className="text-xs sm:text-sm text-black mb-3 px-2">
+                    Do you accept the terms and conditions by registrating?
                   </p>
 
-                  <div className="flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-2 sm:gap-3">
                     <input
                       type="checkbox"
                       name="agree_terms"
@@ -288,7 +306,7 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                     />
                     <label
                       htmlFor="agree_terms"
-                      className="text-sm text-gray-700 cursor-pointer"
+                      className="text-xs sm:text-sm text-black cursor-pointer"
                     >
                       I agree to the terms and conditions
                     </label>
@@ -302,11 +320,11 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
                 </div>
 
                 {/* Submit */}
-                <div className="pt-4">
+                <div className="pt-3 sm:pt-4">
                   <button
                     type="submit"
                     disabled={processing}
-                    className="w-full bg-[#C8102E] text-white font-bold text-base md:text-lg py-3.5 rounded-full shadow-lg hover:bg-[#A00D26] transition-all duration-300 disabled:opacity-50"
+                    className="w-full bg-[#C8102E] text-white font-bold text-base sm:text-lg md:text-xl py-3 sm:py-4 rounded-full shadow-xl hover:bg-[#A00D26] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-2xl active:scale-[0.98]"
                   >
                     {processing ? "SUBMITTING..." : "SUBMIT"}
                   </button>
@@ -318,14 +336,14 @@ export default function MitsubishiRegistration({ selectedVehicle }) {
         </div>
 
         {/* Cityscape */}
-        <div className="cityscape-container h-48 md:h-64 w-full animate-cityscape -mb-12 md:-mb-20">
-          <div className="relative h-full flex items-end justify-center">
+        <div className="cityscape-container w-full" style={{ height: '180px' }}>
+          <div className="relative h-full flex items-end justify-center overflow-hidden">
             <img
               src="/images/cityspace.png"
               alt="Cityscape"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-top cityscape-img"
+              style={{ objectPosition: 'center top' }}
             />
-
           </div>
         </div>
       </div>
