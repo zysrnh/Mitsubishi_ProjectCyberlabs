@@ -550,11 +550,27 @@ class RegistrationResource extends Resource
                     
                 Tables\Actions\EditAction::make(),
                 
+                // ✅ ACTION BARU - View SIM Photo in Modal
+                Action::make('view_sim')
+                    ->label('Lihat SIM')
+                    ->icon('heroicon-o-identification')
+                    ->color('info')
+                    ->modalHeading(fn(Registration $record) => 'Foto SIM - ' . $record->name)
+                    ->modalContent(fn(Registration $record) => view('components.sim-photo-modal', [
+                        'imageUrl' => $record->sim_photo_url,
+                        'name' => $record->name,
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->slideOver()
+                    ->modalWidth('3xl')
+                    ->visible(fn(Registration $record) => !empty($record->extras['sim_photo'])),
+                
                 // ✅ ACTION BARU - Download SIM Photo
                 Action::make('download_sim')
                     ->label('Download SIM')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->color('info')
+                    ->color('success')
                     ->url(fn(Registration $record) => $record->sim_photo_url)
                     ->openUrlInNewTab()
                     ->visible(fn(Registration $record) => !empty($record->extras['sim_photo'])),
