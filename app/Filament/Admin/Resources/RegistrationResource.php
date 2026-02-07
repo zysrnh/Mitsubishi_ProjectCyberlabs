@@ -121,12 +121,13 @@ class RegistrationResource extends Resource
                     ->afterStateHydrated(fn($set, $record) => $set('event_name', $record->extras['event_name'] ?? null))
                     ->dehydrated(false),
                     
-                // ✅ FIELD BARU - SIM PHOTO (Read-only, tidak bisa diedit)
+                // ✅ FIELD BARU - SIM PHOTO (Read-only, tidak bisa diedit) - MAX 10MB
                 FileUpload::make('sim_photo')
                     ->label('Foto SIM')
                     ->image()
                     ->disk('public')
                     ->directory('sim_photos')
+                    ->maxSize(10240) // ✅ MAKSIMAL 10MB (10240 KB)
                     ->afterStateHydrated(fn($set, $record) => $set('sim_photo', $record->extras['sim_photo'] ?? null))
                     ->disabled() // Read-only
                     ->dehydrated(false)
@@ -262,9 +263,21 @@ class RegistrationResource extends Resource
                     ->getStateUsing(fn($record) => !empty($record->last_blasted_at))
                     ->toggleable(),
                     
-                IconColumn::make('has_attended')
-                    ->label('Hadir')
-                    ->boolean()
+                // ✅ KOLOM KEHADIRAN - LANGSUNG TAMPILKAN JAM (TIDAK PERLU KLIK DETAIL)
+                TextColumn::make('attended_at')
+                    ->label('Kehadiran')
+                    ->formatStateUsing(function ($state, Registration $record) {
+                        if ($record->has_attended && $state) {
+                            return Carbon::parse($state)
+                                ->timezone('Asia/Jakarta')
+                                ->format('H:i');
+                        }
+                        return '-';
+                    })
+                    ->badge()
+                    ->color(fn(Registration $record): string => $record->has_attended ? 'success' : 'gray')
+                    ->icon(fn(Registration $record): string => $record->has_attended ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->sortable()
                     ->toggleable(),
                     
                 ToggleColumn::make('has_attended')
@@ -276,13 +289,6 @@ class RegistrationResource extends Resource
                     })
                     ->visible(fn() => auth()->user()?->can('update_registration') ?? false)
                     ->toggleable(isToggledHiddenByDefault: true),
-                    
-                TextColumn::make('attended_at')
-                    ->label('Waktu Hadir')
-                    ->dateTime('d M Y, H:i')
-                    ->timezone('Asia/Jakarta')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
                     
                 TextColumn::make('last_blasted_at')
                     ->label('Last WA Sent')
