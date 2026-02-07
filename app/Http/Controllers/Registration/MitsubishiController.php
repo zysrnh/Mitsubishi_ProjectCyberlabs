@@ -8,6 +8,7 @@ use App\Jobs\SendQrToWhatsapp;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 
@@ -94,7 +95,16 @@ class MitsubishiController extends Controller
             'dealer' => ['nullable', 'string', 'max:255'],
             'dealer_branch' => ['required', 'string', 'max:255'],
             'vehicle' => ['required', 'string', 'in:destinator,xpander,xforce,pajero_sport'],
+            'sim_photo' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'], // ✅ TAMBAHAN BARU
             'agree_terms' => ['accepted'],
+        ], [
+            // Custom error messages
+            'sim_photo.required' => 'Foto SIM wajib diunggah',
+            'sim_photo.image' => 'File harus berupa gambar',
+            'sim_photo.mimes' => 'Format foto harus jpeg, jpg, atau png',
+            'sim_photo.max' => 'Ukuran foto maksimal 2MB',
+            'agree_terms.accepted' => 'Anda harus menyetujui syarat dan ketentuan',
+            'phone.regex' => 'Format nomor telepon tidak valid',
         ]);
 
         // Normalize phone number
@@ -107,6 +117,12 @@ class MitsubishiController extends Controller
             $phone = '+62' . $phone;
         }
 
+        // ✅ UPLOAD SIM PHOTO
+        $simPhotoPath = null;
+        if ($request->hasFile('sim_photo')) {
+            $simPhotoPath = $request->file('sim_photo')->store('sim_photos', 'public');
+        }
+
         // Create registration
         $registration = Registration::create([
             'name' => $validated['name'],
@@ -117,7 +133,10 @@ class MitsubishiController extends Controller
                 'dealer_branch' => $validated['dealer_branch'],
                 'assistant_sales' => $validated['assistant_sales'] ?? null,
                 'dealer' => $validated['dealer'] ?? null,
+                'sim_photo' => $simPhotoPath, // ✅ TAMBAHAN BARU
                 'event_name' => 'Indonesia International Motor Show',
+                'agree_terms' => true,
+                'agreed_at' => now()->toDateTimeString(),
             ],
         ]);
 

@@ -12,17 +12,20 @@ use App\Models\Seat;
 use Carbon\Carbon;
 use Dom\Text;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
@@ -117,6 +120,18 @@ class RegistrationResource extends Resource
                     ->label('Nama Event')
                     ->afterStateHydrated(fn($set, $record) => $set('event_name', $record->extras['event_name'] ?? null))
                     ->dehydrated(false),
+                    
+                // ✅ FIELD BARU - SIM PHOTO (Read-only, tidak bisa diedit)
+                FileUpload::make('sim_photo')
+                    ->label('Foto SIM')
+                    ->image()
+                    ->disk('public')
+                    ->directory('sim_photos')
+                    ->afterStateHydrated(fn($set, $record) => $set('sim_photo', $record->extras['sim_photo'] ?? null))
+                    ->disabled() // Read-only
+                    ->dehydrated(false)
+                    ->columnSpan(2)
+                    ->visible(fn($record) => isset($record->extras['sim_photo'])),
             ]);
     }
 
@@ -225,6 +240,14 @@ class RegistrationResource extends Resource
                     ->default('-')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
+                
+                // ✅ KOLOM BARU - SIM PHOTO
+                ImageColumn::make('extras.sim_photo')
+                    ->label('Foto SIM')
+                    ->disk('public')
+                    ->square()
+                    ->defaultImageUrl(url('/images/no-image.png'))
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 // ======== STATUS COLUMNS ========
                 IconColumn::make('qr_generated')
@@ -373,6 +396,17 @@ class RegistrationResource extends Resource
                             });
                         }
                     }),
+                    
+                // ✅ FILTER BARU - Has SIM Photo
+                TernaryFilter::make('has_sim_photo')
+                    ->label('Foto SIM')
+                    ->trueLabel('Sudah Upload')
+                    ->falseLabel('Belum Upload')
+                    ->placeholder('Semua')
+                    ->queries(
+                        true: fn($query) => $query->whereNotNull('extras->sim_photo'),
+                        false: fn($query) => $query->whereNull('extras->sim_photo'),
+                    ),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
@@ -464,6 +498,13 @@ class RegistrationResource extends Resource
                                 TextEntry::make('extras.event_name')
                                     ->label('Nama Event')
                                     ->default('-'),
+                                // ✅ TAMBAHAN BARU - SIM PHOTO VIEWER
+                                ImageEntry::make('extras.sim_photo')
+                                    ->label('Foto SIM')
+                                    ->disk('public')
+                                    ->defaultImageUrl(url('/images/no-image.png'))
+                                    ->columnSpanFull()
+                                    ->visible(fn() => !empty($record->extras['sim_photo'])),
                             ])
                             ->columns(2)
                             ->visible(fn() => ($record->extras['type'] ?? null) === 'mitsubishi_iims'),
@@ -508,6 +549,15 @@ class RegistrationResource extends Resource
                     ]),
                     
                 Tables\Actions\EditAction::make(),
+                
+                // ✅ ACTION BARU - Download SIM Photo
+                Action::make('download_sim')
+                    ->label('Download SIM')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->url(fn(Registration $record) => $record->sim_photo_url)
+                    ->openUrlInNewTab()
+                    ->visible(fn(Registration $record) => !empty($record->extras['sim_photo'])),
                 
                 Action::make('approve')
                     ->label('Approve')
@@ -564,6 +614,13 @@ class RegistrationResource extends Resource
                 
                 Tables\Actions\DeleteAction::make()
                     ->before(function (Registration $record) {
+                        // ✅ HAPUS FILE SIM PHOTO
+                        if (isset($record->extras['sim_photo']) && $record->extras['sim_photo']) {
+                            if (Storage::disk('public')->exists($record->extras['sim_photo'])) {
+                                Storage::disk('public')->delete($record->extras['sim_photo']);
+                            }
+                        }
+                        
                         // Hapus file QR jika ada
                         if ($record->qr_path) {
                             $path = str_replace(config('app.url') . '/storage/', '', $record->qr_path);
@@ -603,6 +660,13 @@ class RegistrationResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()
                         ->before(function ($records) {
                             foreach ($records as $record) {
+                                // ✅ HAPUS FILE SIM PHOTO
+                                if (isset($record->extras['sim_photo']) && $record->extras['sim_photo']) {
+                                    if (Storage::disk('public')->exists($record->extras['sim_photo'])) {
+                                        Storage::disk('public')->delete($record->extras['sim_photo']);
+                                    }
+                                }
+                                
                                 if ($record->qr_path) {
                                     $path = str_replace(config('app.url') . '/storage/', '', $record->qr_path);
                                     if (Storage::disk('public')->exists($path)) {
@@ -614,6 +678,13 @@ class RegistrationResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make()
                         ->before(function ($records) {
                             foreach ($records as $record) {
+                                // ✅ HAPUS FILE SIM PHOTO
+                                if (isset($record->extras['sim_photo']) && $record->extras['sim_photo']) {
+                                    if (Storage::disk('public')->exists($record->extras['sim_photo'])) {
+                                        Storage::disk('public')->delete($record->extras['sim_photo']);
+                                    }
+                                }
+                                
                                 if ($record->qr_path) {
                                     $path = str_replace(config('app.url') . '/storage/', '', $record->qr_path);
                                     if (Storage::disk('public')->exists($path)) {

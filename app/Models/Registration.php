@@ -34,6 +34,7 @@ class Registration extends Model
 
     protected $appends = [
         'qr_url',
+        'sim_photo_url', // ✅ TAMBAHAN BARU
     ];
 
     // ==================== AUTO GENERATE UNIQUE CODE ====================
@@ -71,12 +72,31 @@ class Registration extends Model
         );
     }
 
-    // ✅ TAMBAHAN BARU - QR Full Path untuk WhatsApp
     protected function qrFullPath(): Attribute
     {
         return Attribute::make(
             get: fn() => $this->qr_path 
                 ? Storage::disk('public')->path($this->qr_path)
+                : null
+        );
+    }
+
+    // ✅ TAMBAHAN BARU - SIM PHOTO URL
+    protected function simPhotoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => isset($this->extras['sim_photo']) && $this->extras['sim_photo']
+                ? asset('storage/' . $this->extras['sim_photo'])
+                : null
+        );
+    }
+
+    // ✅ TAMBAHAN BARU - SIM PHOTO FULL PATH
+    protected function simPhotoFullPath(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => isset($this->extras['sim_photo']) && $this->extras['sim_photo']
+                ? Storage::disk('public')->path($this->extras['sim_photo'])
                 : null
         );
     }
@@ -100,6 +120,12 @@ class Registration extends Model
     public function getDealerAttribute()
     {
         return $this->extras['dealer'] ?? null;
+    }
+
+    // ✅ TAMBAHAN BARU - SIM PHOTO ACCESSOR
+    public function getSimPhotoAttribute()
+    {
+        return $this->extras['sim_photo'] ?? null;
     }
 
     // ==================== HELPER METHODS ====================
