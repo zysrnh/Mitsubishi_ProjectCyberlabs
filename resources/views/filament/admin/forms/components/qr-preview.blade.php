@@ -1,10 +1,10 @@
 <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-    @if ($getRecord()->qr_path && Storage::disk('public')->exists($getRecord()->qr_path))
-        <img src="{{ Storage::disk('public')->url($getRecord()->qr_path) }}" 
-             alt="QR Code" 
-             class="w-48 h-48 rounded-2xl shadow-lg border-4 border-white"
+    @if ($getRecord()->qr_path)
+        <img src="{{ $getRecord()->qr_url }}" 
+             alt="QR Code {{ $getRecord()->unique_code }}" 
+             class="w-56 h-56 rounded-2xl shadow-xl border-8 border-white bg-white"
         >
-        <p class="mt-4 text-xs font-black text-slate-400 tracking-widest uppercase">
+        <p class="mt-4 text-sm font-black text-slate-500 tracking-[0.2em] uppercase">
             {{ $getRecord()->unique_code }}
         </p>
     @else
