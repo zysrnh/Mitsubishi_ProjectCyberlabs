@@ -27,7 +27,7 @@ class SendQrToWhatsapp implements ShouldQueue
 
         app(TwilioService::class)->sendMessageWithImage(
             $recipientNumber,
-            $this->registration->qr_full_path,
+            $this->registration->qr_url,
             $this->registration,
         );
     }

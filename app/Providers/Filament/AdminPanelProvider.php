@@ -26,9 +26,27 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->id('admin')
             ->path('admin')
+            ->login()
+            ->brandName('ASITA Meeting Admin')
+            ->brandLogo(asset('images/Asitajpeg-removebg-preview.png'))
+            ->brandLogoHeight('3rem')
+            ->favicon(asset('images/Asitajpeg-removebg-preview.png'))
+            ->passwordReset()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => [
+                    50 => '#f0f2f9',
+                    100 => '#e1e5f3',
+                    200 => '#c2cbe7',
+                    300 => '#a3b1db',
+                    400 => '#657ec3',
+                    500 => '#2A348D', // Primary ASITA Color
+                    600 => '#262f7f',
+                    700 => '#1f276a',
+                    800 => '#191f55',
+                    900 => '#141945',
+                ],
             ])
+            ->font('Outfit', 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap')
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
             ->pages([

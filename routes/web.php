@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Fake login route for Filament redirect
+Route::get('/login', function () {
+    return redirect('/admin/login');
+})->name('login');
+
 // Storage Link Helper
 Route::get('/storage-link', function () {
     $targetFolder = $_SERVER['DOCUMENT_ROOT'].'/laravel/storage/app/public';

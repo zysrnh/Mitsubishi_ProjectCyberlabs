@@ -1,19 +1,19 @@
-import { Head, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 
-const SuccessMessage = ({ registration }) => {
+const SuccessMessage = ({ registration, isVisible }) => {
   return (
-    <div className="w-full max-w-xl space-y-6 text-center">
+    <div className="w-full max-w-xl mx-auto space-y-8 text-center">
       <div
-        className="rounded-2xl p-8 mb-6 bg-blue-50 border border-blue-100"
-        style={{
-          backgroundColor: "rgba(42, 52, 141, 0.05)",
-          border: "1px solid rgba(42, 52, 141, 0.2)",
-        }}
+        className={`rounded-3xl p-10 bg-white shadow-2xl border border-slate-100 relative overflow-hidden transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+        style={{ transitionDelay: '0.2s' }}
       >
-        <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-blue-100">
+        <div className="absolute top-0 left-0 right-0 h-2 bg-green-500"></div>
+        
+        <div className="bg-green-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 text-[#2A348D]"
+            className="h-14 w-14 text-green-600"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -27,122 +27,135 @@ const SuccessMessage = ({ registration }) => {
           </svg>
         </div>
 
-        <p className="text-xl md:text-2xl font-bold mb-3 text-[#2A348D]">
-          Registrasi Sukses!
-        </p>
+        <h2 className="text-3xl font-extrabold mb-4 text-slate-900 tracking-tight">
+          Registrasi Berhasil!
+        </h2>
 
-        <p className="text-slate-600">
-          QR Code pendaftaran Anda telah berhasil dibuat dan dikirimkan melalui WhatsApp.
+        <p className="text-slate-500 text-lg font-light leading-relaxed">
+          Terima kasih telah mendaftar. E-Ticket QR Code Anda telah dikirimkan secara otomatis melalui WhatsApp ke nomor <span className="font-semibold text-slate-900">{registration.phone}</span>.
         </p>
       </div>
 
-      {/* Show QR result if available */}
+      {/* QR result if available */}
       {registration?.qr_url && (
-        <div className="rounded-2xl p-8 bg-white shadow-xl border border-slate-100 transform transition-all hover:scale-[1.02]">
-          <p className="text-sm font-semibold mb-6 text-[#2A348D] uppercase tracking-wider">QR Code Pendaftaran</p>
-          <div className="bg-slate-50 p-6 rounded-2xl inline-block mb-4">
+        <div 
+          className={`rounded-3xl p-10 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 transform transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+          style={{ transitionDelay: '0.4s' }}
+        >
+          <p className="text-xs font-bold mb-8 text-[#2A348D] uppercase tracking-[0.2em]">QR Code E-Ticket</p>
+          
+          <div className="bg-[#f8fafc] p-10 rounded-[2.5rem] inline-block mb-8 border-2 border-dashed border-slate-200">
             <img 
               src={registration.qr_url} 
               alt="QR Code" 
-              className="w-48 h-48 mx-auto mix-blend-multiply" 
+              className="w-56 h-56 mx-auto mix-blend-multiply" 
               onError={e => {e.target.onerror=null;e.target.src='/images/no-qr.png';}} 
             />
           </div>
-          <div className="space-y-1 mb-6">
-            <p className="text-xs text-slate-400">Kode Unik Anda</p>
-            <p className="text-lg font-bold text-[#2A348D] tracking-widest">{registration?.unique_code}</p>
+
+          <div className="space-y-2 mb-10">
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Unique ID</p>
+            <p className="text-3xl font-black text-[#2A348D] tracking-[0.3em]">{registration?.unique_code}</p>
           </div>
+
           <a
             href={registration.qr_url}
             download={`QR-ASITA-${registration?.unique_code}.png`}
-            className="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl text-white font-semibold transition-all hover:brightness-110 shadow-lg"
+            className="w-full inline-flex items-center justify-center gap-4 px-8 py-5 rounded-2xl text-white font-bold text-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_20px_-5px_rgba(42,52,141,0.5)]"
             style={{ backgroundColor: "#2A348D" }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Download QR Code
+            DOWNLOAD E-TICKET
           </a>
         </div>
       )}
 
-      <div className="rounded-xl p-5 text-left bg-slate-50 border-l-4 border-[#2A348D]">
-        <p className="text-sm font-semibold mb-2 text-[#2A348D] flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {/* Important Info */}
+      <div 
+        className={`rounded-2xl p-6 text-left bg-blue-50/50 border-l-[6px] border-[#2A348D] flex gap-5 transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+        style={{ transitionDelay: '0.6s' }}
+      >
+        <div className="flex-shrink-0 bg-[#2A348D] w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Informasi Penting
-        </p>
-
-        <p className="text-sm text-slate-600 leading-relaxed">
-          Silakan tunjukkan QR Code ini kepada petugas di meja registrasi saat tiba di lokasi acara. Salinan QR Code juga telah dikirimkan ke nomor WhatsApp <strong>{registration.phone}</strong>.
-        </p>
+        </div>
+        <div>
+          <p className="text-sm font-bold text-[#2A348D] mb-1">PANDUAN REGISTRASI ULANG</p>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium">
+            Tunjukkan QR Code ini kepada petugas di lokasi acara. Salinan juga tersedia di WhatsApp Anda untuk akses cepat.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default function RegistrationSuccess({
-  registration,
-}) {
+export default function RegistrationSuccess({ registration }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
     <>
-      <Head title="Registration Success - ASITA Meeting" />
+      <Head title="Success - ASITA Meeting" />
 
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Decorative Header */}
-        <div className="bg-[#2A348D] h-64 w-full relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+      <div className="min-h-screen bg-[#f1f5f9] flex flex-col">
+        {/* Header Section */}
+        <div className="bg-[#2A348D] h-[340px] w-full relative overflow-hidden flex flex-col items-center pt-16">
+          {/* Decorative shapes */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute top-0 left-0 -ml-16 -mt-16 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center h-full pt-8">
-             <div className="bg-white p-3 rounded-xl shadow-lg mb-4">
-                <img
-                  src="/images/Asitajpeg-removebg-preview.png"
-                  alt="ASITA Logo"
-                  className="h-12 object-contain"
-                />
-             </div>
-             <h2 className="text-white text-2xl font-bold tracking-tight px-4 text-center">
-                REGISTRASI BERHASIL
-             </h2>
+          <div className={`transition-all duration-1000 ${isVisible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
+            <div className="bg-white p-5 rounded-[2rem] shadow-2xl mb-6 inline-block">
+              <img
+                src="/images/Asitajpeg-removebg-preview.png"
+                alt="ASITA Logo"
+                className="h-16 object-contain"
+              />
+            </div>
+            <h1 className="text-white text-3xl font-black tracking-[0.1em] text-center uppercase">
+              ASITA MEETING 2026
+            </h1>
           </div>
         </div>
 
-        <main className="flex-1 px-4 -mt-16 pb-12 relative z-20">
-          <div className="max-w-xl mx-auto">
-            <SuccessMessage registration={registration} />
-            
-            <div className="mt-8 text-center">
-               <a 
-                href={route('asita.show_form')} 
-                className="text-slate-400 hover:text-[#2A348D] transition-colors text-sm font-medium"
-               >
-                 Kembali ke Beranda
-               </a>
-            </div>
+        <main className="flex-1 px-4 -mt-24 pb-20 relative z-20">
+          <SuccessMessage registration={registration} isVisible={isVisible} />
+          
+          <div className={`mt-12 text-center transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '0.8s' }}>
+             <a 
+              href={route('asita.show_form')} 
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-[#2A348D] transition-all text-sm font-bold group"
+             >
+                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                KEMBALI KE PENDAFTARAN
+             </a>
           </div>
         </main>
 
-        <footer className="py-6 text-center text-slate-400 text-xs border-t border-slate-200">
-          © {new Date().getFullYear()} ASITA Meeting. All rights reserved.
+        <footer className="py-10 text-center bg-white border-t border-slate-200">
+          <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">
+            © {new Date().getFullYear()} ASITA Meeting • Powered by Cyberlabs
+          </p>
         </footer>
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
         * {
           font-family: 'Outfit', sans-serif;
         }
 
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-
-        main {
-          animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        body {
+          margin: 0;
+          overflow-x: hidden;
         }
       `}</style>
     </>
