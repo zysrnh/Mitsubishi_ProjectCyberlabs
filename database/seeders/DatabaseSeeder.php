@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Super Admin
         $admin = User::firstOrCreate(
-            ['email' => 'super-admin@alcomedia.id'],
+            ['email' => 'super-admin@asita.id'],
             [
                 'name' => 'Super Admin',
                 'password' => bcrypt('4Lc0@dm1nistrat0r0917'),
@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         
         // Create Web Admin
         $webAdmin = User::firstOrCreate(
-            ['email' => 'web-admin@alcomedia.id'],
+            ['email' => 'web-admin@asita.id'],
             [
                 'name' => 'Web Admin',
                 'password' => bcrypt('40wLCpD9dc'),
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Editor Admin
         $editorAdmin = User::firstOrCreate(
-            ['email' => 'editor-admin@alcomedia.id'],
+            ['email' => 'editor-admin@asita.id'],
             [
                 'name' => 'Editor Admin',
                 'password' => bcrypt('9Ey6N4Axms'),
@@ -49,8 +49,8 @@ class DatabaseSeeder extends Seeder
         $editorAdmin->assignRole('admin_editor');
         
         $this->command->info('✅ Users seeded successfully!');
-        $this->command->info('📧 Super Admin: super-admin@alcomedia.id');
-        $this->command->info('📧 Web Admin: web-admin@alcomedia.id');
-        $this->command->info('📧 Editor Admin: editor-admin@alcomedia.id');
+        $this->command->info('📧 Super Admin: super-admin@asita.id');
+        $this->command->info('📧 Web Admin: web-admin@asita.id');
+        $this->command->info('📧 Editor Admin: editor-admin@asita.id');
     }
 }
