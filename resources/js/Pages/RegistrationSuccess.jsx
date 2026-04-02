@@ -93,8 +93,8 @@ const SuccessMessage = ({ registration, isVisible }) => {
             <div className="flex justify-between items-center mb-10 pb-8 border-b-2 border-dashed border-slate-200">
                <img src="/images/Asitajpeg-removebg-preview.png" className="h-20" alt="Logo" />
                <div className="text-right">
-                  <h2 className="text-2xl font-black text-[#2A348D]">E-TICKET RAKERDA 1</h2>
-                  <p className="text-sm text-slate-500 font-bold tracking-widest">ASITA JAWA BARAT 2026</p>
+                  <h2 className="text-2xl font-black text-[#2A348D]">RAKERDA 1</h2>
+                  <p className="text-sm text-slate-500 font-bold tracking-widest uppercase">DPD ASITA JABAR</p>
                </div>
             </div>
 
@@ -213,26 +213,30 @@ export default function RegistrationSuccess({ registration }) {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 to-slate-950"></div>
         </div>
 
-        {/* Header Section */}
-        <div className="h-[340px] w-full relative z-10 flex flex-col items-center pt-16">
+        <div className="h-auto w-full relative z-10 flex flex-col items-center pt-16 pb-12">
           {/* Decorative shapes */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute top-0 left-0 -ml-16 -mt-16 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
           
-          <div className={`transition-all duration-1000 ${isVisible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
-            <div className="bg-white p-5 rounded-[2rem] shadow-2xl mb-6 inline-block">
+          <div className={`transition-all duration-1000 flex flex-col items-center ${isVisible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
+            <div className="bg-white p-4 sm:p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] mb-8 inline-block">
               <img
                 src="/images/Asitajpeg-removebg-preview.png"
                 alt="ASITA Logo"
-                className="h-16 object-contain"
+                className="h-16 sm:h-24 object-contain"
               />
             </div>
-            <h1 className="text-white text-3xl font-black tracking-[0.1em] text-center uppercase">
-              RAKERDA 1 <span className="text-[#0EA5E9]">ASITA JABAR</span>
-            </h1>
-            <p className="text-white/70 text-sm font-medium mt-2 max-w-xs text-center mx-auto">
-              "TRANSFORMASI DIGITAL ASITA JAWA BARAT MELALUI INOVASI DAN INTEGRASI TEKNOLOGI"
-            </p>
+            <h1 className="text-white text-4xl sm:text-6xl font-black mb-2 italic">RAKERDA 1</h1>
+            <h2 className="text-2xl sm:text-4xl font-black text-[#0EA5E9] tracking-[0.2em] uppercase mb-4">DPD ASITA JABAR</h2>
+            
+            <div className="space-y-2 max-w-2xl px-6 text-center">
+              <p className="text-white/40 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase">
+                ASSOCIATION OF INDONESIAN TOURS & TRAVEL AGENCIES
+              </p>
+              <p className="text-[#0EA5E9] text-xs sm:text-sm font-black italic tracking-wide">
+                "TRANSFORMASI DIGITAL ASITA JAWA BARAT MELALUI INOVASI DAN INTEGRASI TEKNOLOGI"
+              </p>
+            </div>
+            <div className="w-16 h-1 bg-[#0EA5E9] mx-auto mt-6 rounded-full opacity-50"></div>
           </div>
         </div>
 
@@ -250,25 +254,44 @@ export default function RegistrationSuccess({ registration }) {
           </div>
         </main>
 
-        <footer className="py-16 bg-slate-950 text-center relative z-10 border-t border-white/5">
-          <div className="max-w-2xl mx-auto px-4 mb-10 text-slate-400">
-             <h4 className="text-white text-sm font-bold uppercase tracking-widest mb-6">Hot Line Support</h4>
-             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
-                <div className="group">
-                   <p className="text-[10px] uppercase tracking-tighter opacity-50 mb-1">Admin ASITA</p>
-                   <a href="https://wa.me/6282113971389" className="text-lg font-bold text-[#0EA5E9] hover:underline transition-all">0821-1397-1389</a>
+        <footer className="py-16 bg-slate-950 text-center relative z-10 border-t border-white/5 space-y-12">
+           <div className="flex flex-col sm:flex-row items-center justify-center gap-12 text-slate-400">
+                <div className="text-center group">
+                   <p className="text-[10px] uppercase font-black tracking-widest opacity-40 mb-3">Admin ASITA</p>
+                   <a 
+                    href="https://wa.me/6282113971389" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-3 bg-white/5 px-6 py-4 rounded-2xl hover:bg-[#0EA5E9]/20 transition-all border border-white/10 group-hover:border-[#0EA5E9]/50"
+                   >
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-5 h-5" alt="WA" />
+                      <span className="text-lg font-black text-white">0821-1397-1389</span>
+                   </a>
                 </div>
-                <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
-                <div className="group">
-                   <p className="text-[10px] uppercase tracking-tighter opacity-50 mb-1">Ibu Dewi</p>
-                   <a href="https://wa.me/628164864620" className="text-lg font-bold text-[#0EA5E9] hover:underline transition-all">0816-4864-620</a>
+                <div className="text-center group">
+                   <p className="text-[10px] uppercase font-black tracking-widest opacity-40 mb-3">Ibu Dewi</p>
+                   <a 
+                    href="https://wa.me/628164864620" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-3 bg-white/5 px-6 py-4 rounded-2xl hover:bg-[#0EA5E9]/20 transition-all border border-white/10 group-hover:border-[#0EA5E9]/50"
+                   >
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-5 h-5" alt="WA" />
+                      <span className="text-lg font-black text-white">0816-4864-620</span>
+                   </a>
                 </div>
-             </div>
-          </div>
-          
-          <p className="text-slate-600 text-[10px] font-bold tracking-[0.3em] uppercase">
-            © {new Date().getFullYear()} ASITA Meeting • Harris Hotel, 09 April 2026
-          </p>
+           </div>
+
+           <div className="space-y-4">
+              <div className="flex flex-col items-center gap-2">
+                 <p className="text-white text-base font-black tracking-[0.2em] uppercase">HARRIS HOTEL, 09 APRIL 2026</p>
+                 <p className="text-white/40 text-[10px] font-bold tracking-[0.3em] uppercase">ASITA JABAR • ASSOCIATION OF INDONESIAN TOURS & TRAVEL AGENCIES</p>
+              </div>
+              <div className="h-px w-20 bg-white/10 mx-auto"></div>
+              <p className="text-slate-600 text-[9px] font-black tracking-[0.4em] uppercase">
+                © {new Date().getFullYear()} ASITA JABAR • Powered by <span className="text-[#0EA5E9]">Cyberlabs</span>
+              </p>
+           </div>
         </footer>
       </div>
     </>

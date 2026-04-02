@@ -28,15 +28,6 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
         $query = Registration::query()
             ->where('has_attended', false); // Hanya yang belum hadir
 
-        // Filter berdasarkan tipe
-        if ($this->type === 'karang_taruna') {
-            $query->whereJsonContains('extras->type', 'karang_taruna');
-        } elseif ($this->type === 'umum') {
-            $query->whereJsonContains('extras->type', 'umum');
-        } elseif ($this->type === 'vip') {
-            $query->whereJsonContains('extras->type', 'vip');
-        }
-
         return $query->orderBy('created_at', 'desc')->get();
     }
 
@@ -47,14 +38,18 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
     {
         return [
             'No',
-            'Nama',
-            'Nomor Telepon',
-            'Tipe',
-            'Daerah/Tingkatan',
-            'Organisasi',
-            'Instansi',
+            'Waktu Daftar',
+            'Nama Lengkap',
             'Jabatan',
-            'Nomor Baju',
+            'Nama Perusahaan',
+            'NIA',
+            'Alamat Perusahaan',
+            'Telepon Perusahaan',
+            'WhatsApp',
+            'Email',
+            'Website',
+            'Media Sosial',
+            'Komisi',
             'Kode Unik',
         ];
     }
@@ -67,24 +62,20 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
         static $index = 0;
         $index++;
 
-        $type = $registration->extras['type'] ?? '-';
-        $typeLabel = match($type) {
-            'regular' => 'Karang Taruna',
-            'umum' => 'Umum',
-            'vip' => 'VIP/VVIP',
-            default => '-'
-        };
-
         return [
             $index,
+            $registration->created_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i') ?? '-',
             $registration->name,
+            $registration->position,
+            $registration->company_name,
+            $registration->nia,
+            $registration->company_address,
+            $registration->company_phone,
             $registration->phone,
-            $typeLabel,
-            $registration->extras['region'] ?? '-',
-            $registration->extras['organization'] ?? '-',
-            $registration->extras['institution'] ?? '-',
-            $registration->extras['position'] ?? '-',
-            $registration->extras['shirt_number'] ?? '-',
+            $registration->email,
+            $registration->website,
+            $registration->social_media,
+            $registration->commission_type,
             $registration->unique_code ?? '-',
         ];
     }
@@ -105,7 +96,7 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
         $rowCount = $this->collection()->count() + 1; // +1 untuk header
         
         // Style untuk semua cell
-        $sheet->getStyle('A1:J' . $rowCount)->applyFromArray([
+        $sheet->getStyle('A1:N' . $rowCount)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -118,10 +109,10 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
         ]);
         
         // Style untuk header
-        $sheet->getStyle('A1:J1')->applyFromArray([
+        $sheet->getStyle('A1:N1')->applyFromArray([
             'font' => [
                 'bold' => true,
-                'size' => 12,
+                'size' => 11,
                 'color' => ['rgb' => 'FFFFFF'],
             ],
             'fill' => [
@@ -136,14 +127,8 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
             ],
         ]);
         
-        // Alignment untuk kolom tertentu
-        $sheet->getStyle('A2:A' . $rowCount)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // No
-        $sheet->getStyle('D2:D' . $rowCount)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Tipe
-        $sheet->getStyle('I2:I' . $rowCount)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Nomor Baju
-        $sheet->getStyle('J2:J' . $rowCount)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Kode Unik
-        
         // Set row height untuk header
-        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->getRowDimension(1)->setRowHeight(30);
         
         return [];
     }
@@ -155,15 +140,19 @@ class RegistrationNotAttendedSheet implements FromCollection, WithHeadings, With
     {
         return [
             'A' => 5,   // No
-            'B' => 25,  // Nama
-            'C' => 18,  // Nomor Telepon
-            'D' => 15,  // Tipe
-            'E' => 20,  // Daerah/Tingkatan
-            'F' => 20,  // Organisasi
-            'G' => 20,  // Instansi
-            'H' => 20,  // Jabatan
-            'I' => 12,  // Nomor Baju
-            'J' => 15,  // Kode Unik
+            'B' => 18,  // Waktu Daftar
+            'C' => 25,  // Nama Lengkap
+            'D' => 20,  // Jabatan
+            'E' => 25,  // Nama Perusahaan
+            'F' => 15,  // NIA
+            'G' => 40,  // Alamat Perusahaan
+            'H' => 18,  // Telepon Perusahaan
+            'I' => 18,  // WhatsApp
+            'J' => 25,  // Email
+            'K' => 20,  // Website
+            'L' => 20,  // Media Sosial
+            'M' => 10,  // Komisi
+            'N' => 15,  // Kode Unik
         ];
     }
 }

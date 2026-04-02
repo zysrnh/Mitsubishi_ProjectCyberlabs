@@ -9,6 +9,9 @@ use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\RegistrationExport;
+
 class ListRegistrations extends ListRecords
 {
     protected static string $resource = RegistrationResource::class;
@@ -16,6 +19,11 @@ class ListRegistrations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('export')
+                ->label('Export Excel')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(fn() => Excel::download(new RegistrationExport, 'data-registrasi-' . now()->format('Y-m-d-His') . '.xlsx')),
             Actions\CreateAction::make(),
         ];
     }
@@ -26,17 +34,17 @@ class ListRegistrations extends ListRecords
             'Semua' => Tab::make()
                 ->badge(fn() => \App\Models\Registration::count()),
             
-            'Karang Taruna' => Tab::make()
+            'Komisi A' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => 
-                    $query->where('extras->event_name', EventName::INAUGURATION->value)
+                    $query->where('commission_type', 'A')
                 )
-                ->badge(fn() => \App\Models\Registration::where('extras->event_name', EventName::INAUGURATION->value)->count()),
+                ->badge(fn() => \App\Models\Registration::where('commission_type', 'A')->count()),
             
-            'Umum' => Tab::make()
+            'Komisi B' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => 
-                    $query->where('extras->event_name', EventName::SEMINAR->value)
+                    $query->where('commission_type', 'B')
                 )
-                ->badge(fn() => \App\Models\Registration::where('extras->event_name', EventName::SEMINAR->value)->count()),
+                ->badge(fn() => \App\Models\Registration::where('commission_type', 'B')->count()),
             
             'Sudah Hadir' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => 

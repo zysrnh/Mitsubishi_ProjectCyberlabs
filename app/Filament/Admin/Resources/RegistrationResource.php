@@ -15,6 +15,7 @@ use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -159,6 +160,12 @@ class RegistrationResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('commission_type')
+                    ->label('Tipe Komisi')
+                    ->options([
+                        'A' => 'Komisi A',
+                        'B' => 'Komisi B',
+                    ]),
                 TernaryFilter::make('has_attended')
                     ->label('Status Kehadiran'),
                 TernaryFilter::make('wa_sent')
@@ -169,8 +176,8 @@ class RegistrationResource extends Resource
                     ),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()->slideOver(),
+                Tables\Actions\EditAction::make()->slideOver(),
                 
                 Action::make('resend_wa')
                     ->label('Kirim WA')
@@ -214,6 +221,11 @@ class RegistrationResource extends Resource
                                 $record->recordWhatsappSent();
                             }
                         }),
+                    Tables\Actions\BulkAction::make('export')
+                        ->label('Export ke Excel')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->color('success')
+                        ->action(fn() => Excel::download(new RegistrationExport, 'data-registrasi-' . now()->format('Y-m-d-His') . '.xlsx')),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
@@ -223,10 +235,26 @@ class RegistrationResource extends Resource
     {
         return $infolist
             ->schema([
-                Section::make('Detail Registrasi')
+                Section::make('Informasi Instansi')
                     ->schema([
                         TextEntry::make('company_name')->label('Nama Perusahaan'),
                         TextEntry::make('nia')->label('NIA'),
+                        TextEntry::make('company_address')->label('Alamat Perusahaan')->columnSpanFull(),
+                        TextEntry::make('company_phone')->label('Telepon Kantor'),
+                        TextEntry::make('website')->label('Website')->url(fn($record) => $record->website, true),
+                        TextEntry::make('social_media')->label('Media Sosial'),
+                        TextEntry::make('commission_type')
+                            ->label('Tipe Komisi')
+                            ->badge()
+                            ->color(fn(string $state): string => match ($state) {
+                                'A' => 'info',
+                                'B' => 'success',
+                                default => 'gray',
+                            }),
+                    ])->columns(2),
+                
+                Section::make('Identitas Peserta')
+                    ->schema([
                         TextEntry::make('name')->label('Nama Lengkap'),
                         TextEntry::make('position')->label('Jabatan'),
                         TextEntry::make('phone')->label('Nomor WhatsApp'),
@@ -237,20 +265,27 @@ class RegistrationResource extends Resource
                             ->color('gray'),
                     ])->columns(2),
                 
-                Section::make('Status')
+                Section::make('QR Code & Status')
                     ->schema([
-                        IconEntry::make('has_attended')
-                            ->label('Sudah Hadir')
-                            ->boolean(),
+                        ViewEntry::make('qr_preview')
+                            ->label('QR Code')
+                            ->view('filament.admin.forms.components.qr-preview')
+                            ->hidden(fn ($record) => empty($record->qr_path)),
+                        
+                        TextEntry::make('has_attended')
+                            ->label('Status Kehadiran')
+                            ->badge()
+                            ->color(fn ($state) => $state ? 'success' : 'gray')
+                            ->formatStateUsing(fn ($state) => $state ? 'SUDAH HADIR' : 'BELUM HADIR'),
+                        
                         TextEntry::make('attended_at')
-                            ->label('Waktu Hadir')
-                            ->dateTime('d M Y, H:i')
-                            ->timezone('Asia/Jakarta'),
+                            ->label('Waktu Check-in')
+                            ->dateTime('d M Y, H:i'),
+                        
                         TextEntry::make('last_blasted_at')
-                            ->label('WA Terakhir Dikirim')
-                            ->dateTime('d M Y, H:i')
-                            ->timezone('Asia/Jakarta'),
-                    ])->columns(3),
+                            ->label('WhatsApp Terakhir')
+                            ->dateTime('d M Y, H:i'),
+                    ])->columns(2),
             ]);
     }
 
