@@ -16,7 +16,6 @@ export default function AsitaRegistration() {
     commission_type: "A",
   });
 
-  const [currentStep, setCurrentStep] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [splashPhase, setSplashPhase] = useState(0);
@@ -35,21 +34,7 @@ export default function AsitaRegistration() {
 
   const handleChange = ({ target: { name, value } }) => setData(name, value);
 
-  const nextStep = () => {
-    if (currentStep === 0 && (!data.company_name || !data.nia || !data.company_address || !data.company_phone)) {
-      alert("Mohon lengkapi data identitas perusahaan"); return;
-    }
-    if (currentStep === 1 && (!data.name || !data.position || !data.phone)) {
-      alert("Mohon lengkapi data identitas peserta"); return;
-    }
-    setCurrentStep(p => p + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const prevStep = () => { setCurrentStep(p => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const handleSubmit = (e) => { e.preventDefault(); post(route("asita.submit_form")); };
-
-  const steps = ["Identitas Perusahaan", "Identitas Peserta", "Konfirmasi"];
 
   return (
     <>
@@ -104,10 +89,10 @@ export default function AsitaRegistration() {
         .splash-corner.tl { top: 24px; left: 24px; border-width: 2px 0 0 2px; }
         .splash-corner.br { bottom: 24px; right: 24px; border-width: 0 2px 2px 0; }
 
-        .splash-inner { text-align: center; padding: 0 24px; position: relative; z-index: 2; width: 100%; max-width: 700px; }
+        .splash-inner { text-align: center; padding: 0 24px; position: relative; z-index: 2; width: 100%; max-width: 900px; }
 
         .splash-logo {
-          height: 90px; object-fit: contain;
+          height: 160px; object-fit: contain;
           filter: brightness(10);
           display: block; margin: 0 auto 24px;
           opacity: 0; transform: scale(0.85);
@@ -131,9 +116,10 @@ export default function AsitaRegistration() {
         .splash-t1-wrap, .splash-t2-wrap { overflow: hidden; }
         .splash-t1 {
           display: block;
-          font-size: clamp(64px, 16vw, 148px);
-          font-weight: 900; color: #fff; line-height: 0.87;
-          letter-spacing: -0.04em; text-transform: uppercase;
+          font-size: clamp(40px, 8.5vw, 85px);
+          font-weight: 900; color: #fff; line-height: 0.88;
+          letter-spacing: -0.02em; text-transform: uppercase;
+          white-space: nowrap;
           transform: translateY(110%);
           transition: transform 0.85s cubic-bezier(0.16,1,0.3,1) 0.1s;
         }
@@ -160,7 +146,7 @@ export default function AsitaRegistration() {
         .splash-tagline {
           font-size: clamp(10px, 1.8vw, 14px); font-weight: 600;
           color: rgba(255,255,255,0.55); font-style: italic;
-          letter-spacing: 0.05em; max-width: 480px; line-height: 1.6;
+          letter-spacing: 0.05em; max-width: 480px; margin: 0 auto; line-height: 1.6;
           opacity: 0; transform: translateY(10px);
           transition: all 0.6s ease 0.6s;
         }
@@ -202,7 +188,7 @@ export default function AsitaRegistration() {
         .header.hidden { opacity: 0; transform: translateY(-16px); }
         .header.show { opacity: 1; transform: translateY(0); }
 
-        .header-logo { height: 100px; object-fit: contain; filter: brightness(10); margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
+        .header-logo { height: 160px; object-fit: contain; filter: brightness(10); margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
 
         .header-eyebrow { font-size: 8px; font-weight: 800; letter-spacing: 0.5em; color: #FBBF24; text-transform: uppercase; margin-bottom: 8px; opacity: 0.8; }
         .header-title { font-size: clamp(48px, 10vw, 88px); font-weight: 900; color: #fff; line-height: 0.88; letter-spacing: -0.04em; text-transform: uppercase; }
@@ -404,19 +390,7 @@ export default function AsitaRegistration() {
           <h1 className="header-title">RAKERDA 1</h1>
           <p className="header-sub">DPD ASITA JABAR</p>
 
-          {/* Step Nav */}
-          <div className="step-nav">
-            {steps.map((lbl, i) => (
-              <div key={i} className={`step-item${i < currentStep ? " step-done" : ""}`}>
-                <div className={`step-circle${i === currentStep ? " active" : i < currentStep ? " done" : ""}`}>
-                  {i < currentStep
-                    ? <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                    : i + 1}
-                </div>
-                <span className={`step-lbl${i === currentStep ? " active" : i < currentStep ? " done" : ""}`}>{lbl}</span>
-              </div>
-            ))}
-          </div>
+          {/* Step Nav Removed */}
         </header>
 
         {/* FORM */}
@@ -424,109 +398,82 @@ export default function AsitaRegistration() {
           <div className="form-card">
             <form onSubmit={handleSubmit}>
 
-              {/* STEP 1 */}
-              {currentStep === 0 && (
-                <div className="slide-in">
-                  <p className="section-title">01 — Identitas Perusahaan</p>
-                  <div className="grid2">
-                    <div className="field">
-                      <label className="field-lbl">Nama Perusahaan (PT/CV)</label>
-                      <input type="text" name="company_name" value={data.company_name} onChange={handleChange} placeholder="PT. Wisata Jaya" className="field-inp" required />
-                      {errors.company_name && <p className="field-err">{errors.company_name}</p>}
-                    </div>
-                    <div className="field">
-                      <label className="field-lbl">No Register ASITA (NIA)</label>
-                      <input type="text" name="nia" value={data.nia} onChange={handleChange} placeholder="Nomor NIA" className="field-inp" required />
-                      {errors.nia && <p className="field-err">{errors.nia}</p>}
-                    </div>
+              <div className="slide-in">
+                {/* Bagian 1 */}
+                <p className="section-title">01 — Identitas Perusahaan</p>
+                <div className="grid2">
+                  <div className="field">
+                    <label className="field-lbl">Nama Perusahaan (PT/CV)</label>
+                    <input type="text" name="company_name" value={data.company_name} onChange={handleChange} placeholder="PT. Wisata Jaya" className="field-inp" required />
+                    {errors.company_name && <p className="field-err">{errors.company_name}</p>}
                   </div>
                   <div className="field">
-                    <label className="field-lbl">Alamat Perusahaan</label>
-                    <textarea name="company_address" value={data.company_address} onChange={handleChange} placeholder="Alamat lengkap kantor" className="field-inp" style={{ minHeight: 90, resize: "vertical" }} required />
-                    {errors.company_address && <p className="field-err">{errors.company_address}</p>}
+                    <label className="field-lbl">No Register ASITA (NIA)</label>
+                    <input type="text" name="nia" value={data.nia} onChange={handleChange} placeholder="Nomor NIA" className="field-inp" required />
+                    {errors.nia && <p className="field-err">{errors.nia}</p>}
                   </div>
-                  <div className="grid2">
-                    <div className="field">
-                      <label className="field-lbl">No Telpon/HP Kantor</label>
-                      <input type="tel" name="company_phone" value={data.company_phone} onChange={handleChange} placeholder="0221234567" className="field-inp" required />
-                      {errors.company_phone && <p className="field-err">{errors.company_phone}</p>}
-                    </div>
-                    <div className="field">
-                      <label className="field-lbl">Website</label>
-                      <input type="url" name="website" value={data.website} onChange={handleChange} placeholder="www.perusahaan.com" className="field-inp" />
-                    </div>
+                </div>
+                <div className="field">
+                  <label className="field-lbl">Alamat Perusahaan</label>
+                  <textarea name="company_address" value={data.company_address} onChange={handleChange} placeholder="Alamat lengkap kantor" className="field-inp" style={{ minHeight: 90, resize: "vertical" }} required />
+                  {errors.company_address && <p className="field-err">{errors.company_address}</p>}
+                </div>
+                <div className="grid2">
+                  <div className="field">
+                    <label className="field-lbl">No Telpon/HP Kantor</label>
+                    <input type="tel" name="company_phone" value={data.company_phone} onChange={handleChange} placeholder="0221234567" className="field-inp" required />
+                    {errors.company_phone && <p className="field-err">{errors.company_phone}</p>}
                   </div>
                   <div className="field">
-                    <label className="field-lbl">Media Sosial</label>
-                    <input type="text" name="social_media" value={data.social_media} onChange={handleChange} placeholder="@perusahaan" className="field-inp" />
-                  </div>
-                  <div className="btn-row" style={{ justifyContent: "flex-end" }}>
-                    <button type="button" onClick={nextStep} className="btn-primary" style={{ maxWidth: 220 }}>
-                      Berikutnya <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                    </button>
+                    <label className="field-lbl">Website</label>
+                    <input type="url" name="website" value={data.website} onChange={handleChange} placeholder="www.perusahaan.com" className="field-inp" />
                   </div>
                 </div>
-              )}
+                <div className="field" style={{ marginBottom: 44 }}>
+                  <label className="field-lbl">Media Sosial</label>
+                  <input type="text" name="social_media" value={data.social_media} onChange={handleChange} placeholder="@perusahaan" className="field-inp" />
+                </div>
 
-              {/* STEP 2 */}
-              {currentStep === 1 && (
-                <div className="slide-in">
-                  <p className="section-title">02 — Identitas Peserta</p>
-                  <div className="grid2">
-                    <div className="field">
-                      <label className="field-lbl">Nama Peserta Yang Hadir</label>
-                      <input type="text" name="name" value={data.name} onChange={handleChange} placeholder="Nama Lengkap & Gelar" className="field-inp" required />
-                    </div>
-                    <div className="field">
-                      <label className="field-lbl">Jabatan Peserta</label>
-                      <input type="text" name="position" value={data.position} onChange={handleChange} placeholder="Direktur / Manager / Staff" className="field-inp" required />
-                    </div>
+                {/* Bagian 2 */}
+                <p className="section-title">02 — Identitas Peserta</p>
+                <div className="grid2">
+                  <div className="field">
+                    <label className="field-lbl">Nama Peserta Yang Hadir</label>
+                    <input type="text" name="name" value={data.name} onChange={handleChange} placeholder="Nama Lengkap & Gelar" className="field-inp" required />
                   </div>
-                  <div className="grid2">
-                    <div className="field">
-                      <label className="field-lbl">No HP (WhatsApp Aktif)</label>
-                      <input type="tel" name="phone" value={data.phone} onChange={handleChange} placeholder="08123456789" className="field-inp" required />
-                    </div>
-                    <div className="field">
-                      <label className="field-lbl">Email</label>
-                      <input type="email" name="email" value={data.email} onChange={handleChange} placeholder="alamat@email.com" className="field-inp" />
-                    </div>
-                  </div>
-                  <div className="btn-row">
-                    <button type="button" onClick={prevStep} className="btn-secondary">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                      Kembali
-                    </button>
-                    <button type="button" onClick={nextStep} className="btn-primary">
-                      Berikutnya <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                    </button>
+                  <div className="field">
+                    <label className="field-lbl">Jabatan Peserta</label>
+                    <input type="text" name="position" value={data.position} onChange={handleChange} placeholder="Direktur / Manager / Staff" className="field-inp" required />
                   </div>
                 </div>
-              )}
+                <div className="grid2" style={{ marginBottom: 44 }}>
+                  <div className="field">
+                    <label className="field-lbl">No HP (WhatsApp Aktif)</label>
+                    <input type="tel" name="phone" value={data.phone} onChange={handleChange} placeholder="08123456789" className="field-inp" required />
+                  </div>
+                  <div className="field">
+                    <label className="field-lbl">Email</label>
+                    <input type="email" name="email" value={data.email} onChange={handleChange} placeholder="alamat@email.com" className="field-inp" />
+                  </div>
+                </div>
 
-              {/* STEP 3 */}
-              {currentStep === 2 && (
-                <div className="slide-in">
-                  <p className="section-title">03 — Pembagian Komisi</p>
-                  <div className="comm-grid">
-                    {["A", "B"].map(t => (
-                      <button key={t} type="button" onClick={() => setData("commission_type", t)} className={`comm-card${data.commission_type === t ? " sel" : ""}`}>
-                        <span className="comm-letter">{t}</span>
-                        <span className="comm-lbl">Komisi {t}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="btn-row">
-                    <button type="button" onClick={prevStep} className="btn-secondary">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                      Kembali
+                {/* Bagian 3 */}
+                <p className="section-title">03 — Pembagian Komisi</p>
+                <div className="comm-grid">
+                  {["A", "B"].map(t => (
+                    <button key={t} type="button" onClick={() => setData("commission_type", t)} className={`comm-card${data.commission_type === t ? " sel" : ""}`}>
+                      <span className="comm-letter">{t}</span>
+                      <span className="comm-lbl">Komisi {t}</span>
                     </button>
-                    <button type="submit" disabled={processing} className="btn-primary">
-                      {processing ? "Memproses..." : <>Submit Pendaftaran <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg></>}
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              )}
+
+                <div className="btn-row" style={{ marginTop: 52 }}>
+                  <button type="submit" disabled={processing} className="btn-primary">
+                    {processing ? "Memproses..." : <>Submit Pendaftaran <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg></>}
+                  </button>
+                </div>
+              </div>
 
             </form>
           </div>

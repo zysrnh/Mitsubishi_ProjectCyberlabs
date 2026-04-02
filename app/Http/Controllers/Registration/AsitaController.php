@@ -80,12 +80,12 @@ class AsitaController extends Controller
             'qr_path' => 'qr_codes/' . $registration->unique_code . '.png',
         ]);
 
-        // Kirim QR via WhatsApp (async)
-        Bus::chain([
-            new SendQrToWhatsapp($registration),
-        ])->dispatch();
+        // Kirim QR via WhatsApp (async) (Dimatikan sementara atas permintaan user)
+        // Bus::chain([
+        //     new SendQrToWhatsapp($registration),
+        // ])->dispatch();
 
-        $registration->recordWhatsappSent();
+        // $registration->recordWhatsappSent();
 
         // Create signed URL untuk success page
         $signedUrl = URL::temporarySignedRoute(

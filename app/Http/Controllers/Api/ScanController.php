@@ -217,11 +217,11 @@ class ScanController extends Controller
             'qr_path' => $registration->qr_path,
             'qr_full_path' => $registration->qr_full_path,
             'message_status' => $registration->message_status ?? null,
-            // Mitsubishi-specific fields (from extras accessors)
-            'vehicle' => $registration->vehicle,
-            'dealer_branch' => $registration->dealer_branch,
-            'assistant_sales' => $registration->assistant_sales,
-            'dealer' => $registration->dealer,
+            // Asita-specific fields
+            'company_name' => $registration->company_name,
+            'nia' => $registration->nia,
+            'position' => $registration->position,
+            'whatsapp_number_participant' => $registration->phone,
         ];
     }
 }
