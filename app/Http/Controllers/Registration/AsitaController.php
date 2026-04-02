@@ -27,36 +27,47 @@ class AsitaController extends Controller
     public function submitForm(Request $request)
     {
         $validated = $request->validate([
-            'company_name' => ['required', 'string', 'max:255'],
-            'nia' => ['required', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'regex:/^(\+?62|0)\d{8,}$/'],
-            'email' => ['required', 'email', 'max:255'],
+            'company_name'   => ['required', 'string', 'max:255'],
+            'name'           => ['required', 'string', 'max:255'],
+            'position'       => ['required', 'string', 'max:255'],
+            'nia'            => ['required', 'string', 'max:255'],
+            'company_address'=> ['required', 'string'],
+            'company_phone'  => ['required', 'string', 'max:255'],
+            'phone'          => ['required', 'string', 'regex:/^(\+?62|0)\d{8,}$/'],
+            'email'          => ['nullable', 'email', 'max:255'], // Keep as optional
+            'website'        => ['nullable', 'string', 'max:255'],
+            'social_media'   => ['nullable', 'string', 'max:255'],
+            'commission_type'=> ['required', 'in:A,B'],
         ], [
             'phone.regex' => 'Format nomor WhatsApp tidak valid',
+            'commission_type.in' => 'Pilih Tipe Komisi A atau B',
         ]);
 
-        // Normalize phone number
-        $phone = $validated['phone'];
-        if (strpos($phone, '0') === 0) {
-            $phone = '+62' . substr($phone, 1);
-        } elseif (strpos($phone, '62') === 0) {
-            $phone = '+' . $phone;
-        } elseif (strpos($phone, '+62') !== 0) {
-            $phone = '+62' . $phone;
+        // Normalize phone number (WA)
+        $waPhone = $validated['phone'];
+        if (strpos($waPhone, '0') === 0) {
+            $waPhone = '+62' . substr($waPhone, 1);
+        } elseif (strpos($waPhone, '62') === 0) {
+            $waPhone = '+' . $waPhone;
+        } elseif (strpos($waPhone, '+62') !== 0) {
+            $waPhone = '+62' . $waPhone;
         }
 
         // Create registration
         $registration = Registration::create([
-            'company_name' => $validated['company_name'],
-            'nia'          => $validated['nia'],
-            'name'         => $validated['name'],
-            'position'     => $validated['position'],
-            'phone'        => $phone,
-            'email'        => $validated['email'],
-            'extras'       => [
-                'event_name' => 'ASITA Meeting',
+            'company_name'    => $validated['company_name'],
+            'nia'             => $validated['nia'],
+            'company_address' => $validated['company_address'],
+            'company_phone'   => $validated['company_phone'],
+            'name'            => $validated['name'],
+            'position'        => $validated['position'],
+            'phone'           => $waPhone,
+            'email'           => $validated['email'] ?? null,
+            'website'         => $validated['website'] ?? null,
+            'social_media'    => $validated['social_media'] ?? null,
+            'commission_type' => $validated['commission_type'],
+            'extras'          => [
+                'event_name' => 'RAKERDA 1 ASITA JABAR',
                 'registered_at' => now()->toDateTimeString(),
             ],
         ]);

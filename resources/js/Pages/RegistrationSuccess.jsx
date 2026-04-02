@@ -2,18 +2,22 @@ import { Head } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 
 const SuccessMessage = ({ registration, isVisible }) => {
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="w-full max-w-xl mx-auto space-y-8 text-center">
       <div
         className={`rounded-3xl p-10 bg-white shadow-2xl border border-slate-100 relative overflow-hidden transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
         style={{ transitionDelay: '0.2s' }}
       >
-        <div className="absolute top-0 left-0 right-0 h-2 bg-green-500"></div>
+        <div className="absolute top-0 left-0 right-0 h-2 bg-[#0EA5E9]"></div>
         
-        <div className="bg-green-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <div className="bg-blue-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-14 w-14 text-green-600"
+            className="h-14 w-14 text-[#0EA5E9]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -58,19 +62,86 @@ const SuccessMessage = ({ registration, isVisible }) => {
             <p className="text-3xl font-black text-[#2A348D] tracking-[0.3em]">{registration?.unique_code}</p>
           </div>
 
-          <a
-            href={registration.qr_url}
-            download={`QR-ASITA-${registration?.unique_code}.png`}
-            className="w-full inline-flex items-center justify-center gap-4 px-8 py-5 rounded-2xl text-white font-bold text-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_20px_-5px_rgba(42,52,141,0.5)]"
-            style={{ backgroundColor: "#2A348D" }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            DOWNLOAD E-TICKET
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a
+              href={registration.qr_url}
+              download={`QR-ASITA-${registration?.unique_code}.png`}
+              className="flex-1 inline-flex items-center justify-center gap-4 px-8 py-5 rounded-2xl border-2 border-slate-200 text-slate-600 font-bold text-lg transition-all hover:bg-slate-50 active:scale-[0.98]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              UNDUH GAMBAR
+            </a>
+            
+            <button
+               onClick={handlePrint}
+               className="flex-1 inline-flex items-center justify-center gap-4 px-8 py-5 rounded-2xl bg-[#0EA5E9] text-white font-bold text-lg transition-all hover:brightness-110 active:scale-[0.98] shadow-lg shadow-blue-500/20"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              EKSPOR PDF
+            </button>
+          </div>
         </div>
       )}
+
+      {/* Printer Optimized Layout */}
+      <div className="hidden pdf-ticket">
+         <div className="p-12 border-[8px] border-[#2A348D] rounded-[48px] bg-white max-w-2xl mx-auto shadow-2xl">
+            <div className="flex justify-between items-center mb-10 pb-8 border-b-2 border-dashed border-slate-200">
+               <img src="/images/Asitajpeg-removebg-preview.png" className="h-20" alt="Logo" />
+               <div className="text-right">
+                  <h2 className="text-2xl font-black text-[#2A348D]">E-TICKET RAKERDA 1</h2>
+                  <p className="text-sm text-slate-500 font-bold tracking-widest">ASITA JAWA BARAT 2026</p>
+               </div>
+            </div>
+
+            <div className="flex gap-12 mb-10">
+               <div className="flex-1 space-y-6">
+                  <div>
+                     <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Nama Peserta</label>
+                     <p className="text-2xl font-bold text-slate-900">{registration.name}</p>
+                  </div>
+                  <div>
+                     <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Instansi / Biro</label>
+                     <p className="text-xl font-bold text-slate-900">{registration.company_name}</p>
+                  </div>
+                  <div className="flex gap-8">
+                     <div>
+                        <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Jabatan</label>
+                        <p className="text-sm font-semibold text-slate-700">{registration.position}</p>
+                     </div>
+                     <div>
+                        <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Registrasi ID</label>
+                        <p className="text-sm font-black text-[#0EA5E9]">{registration.unique_code}</p>
+                     </div>
+                  </div>
+               </div>
+               <div className="w-48 h-48 bg-white p-3 border-4 border-slate-100 rounded-3xl shadow-inner">
+                  <img src={registration.qr_url} className="w-full h-full" alt="QR" />
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-10">
+               <div className="text-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Venue</p>
+                  <p className="text-sm font-black text-slate-900">Harris Hotel Bandung</p>
+               </div>
+               <div className="text-center border-l border-slate-200">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal & Waktu</p>
+                  <p className="text-sm font-black text-slate-900">09 April 2026, 08:30 WIB</p>
+               </div>
+            </div>
+
+            <div className="text-center pt-8 border-t border-dashed border-slate-200">
+               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest italic leading-relaxed">
+                  "Transformasi Digital ASITA Jawa Barat melalui Inovasi dan Integrasi Teknologi"
+               </p>
+            </div>
+         </div>
+      </div>
 
       {/* Important Info */}
       <div 
@@ -85,7 +156,7 @@ const SuccessMessage = ({ registration, isVisible }) => {
         <div>
           <p className="text-sm font-bold text-[#2A348D] mb-1">PANDUAN REGISTRASI ULANG</p>
           <p className="text-sm text-slate-600 leading-relaxed font-medium">
-            Tunjukkan QR Code ini kepada petugas di lokasi acara. Salinan juga tersedia di WhatsApp Anda untuk akses cepat.
+            Simpan file PDF ini. Tunjukkan ke petugas di lokasi acara untuk proses Check-in cepat.
           </p>
         </div>
       </div>
@@ -104,9 +175,46 @@ export default function RegistrationSuccess({ registration }) {
     <>
       <Head title="Success - ASITA Meeting" />
 
-      <div className="min-h-screen bg-[#f1f5f9] flex flex-col">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+          font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+          margin: 0;
+          overflow-x: hidden;
+        }
+
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .pdf-ticket, .pdf-ticket * {
+            visibility: visible;
+          }
+          .pdf-ticket {
+            display: block !important;
+            position: fixed;
+            left: 0;
+            top: 0;
+          }
+        }
+      `}</style>
+
+      <div className="min-h-screen bg-slate-950 flex flex-col relative overflow-hidden">
+        {/* Background Overlay */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-60"
+            style={{ backgroundImage: "url('/images/asita_meeting_bg.png')" }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 to-slate-950"></div>
+        </div>
+
         {/* Header Section */}
-        <div className="bg-[#2A348D] h-[340px] w-full relative overflow-hidden flex flex-col items-center pt-16">
+        <div className="h-[340px] w-full relative z-10 flex flex-col items-center pt-16">
           {/* Decorative shapes */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32"></div>
           <div className="absolute top-0 left-0 -ml-16 -mt-16 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
@@ -120,8 +228,11 @@ export default function RegistrationSuccess({ registration }) {
               />
             </div>
             <h1 className="text-white text-3xl font-black tracking-[0.1em] text-center uppercase">
-              ASITA MEETING 2026
+              RAKERDA 1 <span className="text-[#0EA5E9]">ASITA JABAR</span>
             </h1>
+            <p className="text-white/70 text-sm font-medium mt-2 max-w-xs text-center mx-auto">
+              "TRANSFORMASI DIGITAL ASITA JAWA BARAT MELALUI INOVASI DAN INTEGRASI TEKNOLOGI"
+            </p>
           </div>
         </div>
 
@@ -131,7 +242,7 @@ export default function RegistrationSuccess({ registration }) {
           <div className={`mt-12 text-center transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '0.8s' }}>
              <a 
               href={route('asita.show_form')} 
-              className="inline-flex items-center gap-2 text-slate-500 hover:text-[#2A348D] transition-all text-sm font-bold group"
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-[#0EA5E9] transition-all text-sm font-bold group"
              >
                 <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                 KEMBALI KE PENDAFTARAN
@@ -139,25 +250,27 @@ export default function RegistrationSuccess({ registration }) {
           </div>
         </main>
 
-        <footer className="py-10 text-center bg-white border-t border-slate-200">
-          <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">
-            © {new Date().getFullYear()} ASITA Meeting • Powered by Cyberlabs
+        <footer className="py-16 bg-slate-950 text-center relative z-10 border-t border-white/5">
+          <div className="max-w-2xl mx-auto px-4 mb-10 text-slate-400">
+             <h4 className="text-white text-sm font-bold uppercase tracking-widest mb-6">Hot Line Support</h4>
+             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+                <div className="group">
+                   <p className="text-[10px] uppercase tracking-tighter opacity-50 mb-1">Admin ASITA</p>
+                   <a href="https://wa.me/6282113971389" className="text-lg font-bold text-[#0EA5E9] hover:underline transition-all">0821-1397-1389</a>
+                </div>
+                <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
+                <div className="group">
+                   <p className="text-[10px] uppercase tracking-tighter opacity-50 mb-1">Ibu Dewi</p>
+                   <a href="https://wa.me/628164864620" className="text-lg font-bold text-[#0EA5E9] hover:underline transition-all">0816-4864-620</a>
+                </div>
+             </div>
+          </div>
+          
+          <p className="text-slate-600 text-[10px] font-bold tracking-[0.3em] uppercase">
+            © {new Date().getFullYear()} ASITA Meeting • Harris Hotel, 09 April 2026
           </p>
         </footer>
       </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
-
-        * {
-          font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-          margin: 0;
-          overflow-x: hidden;
-        }
-      `}</style>
     </>
   );
 }

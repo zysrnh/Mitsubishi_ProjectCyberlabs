@@ -52,6 +52,25 @@ class RegistrationResource extends Resource
                         TextInput::make('nia')
                             ->label('NIA (Nomor Induk Anggota)')
                             ->required(),
+                        Forms\Components\Textarea::make('company_address')
+                            ->label('Alamat Perusahaan')
+                            ->required()
+                            ->columnSpanFull(),
+                        TextInput::make('company_phone')
+                            ->label('Telepon Perusahaan')
+                            ->required(),
+                        TextInput::make('website')
+                            ->label('Website')
+                            ->url(),
+                        TextInput::make('social_media')
+                            ->label('Media Sosial'),
+                        Forms\Components\Select::make('commission_type')
+                            ->label('Tipe Komisi')
+                            ->options([
+                                'A' => 'Komisi A',
+                                'B' => 'Komisi B',
+                            ])
+                            ->required(),
                     ])->columns(2),
                 
                 FormSection::make('Informasi Personal')
@@ -68,8 +87,7 @@ class RegistrationResource extends Resource
                             ->required(),
                         TextInput::make('email')
                             ->label('Email')
-                            ->email()
-                            ->required(),
+                            ->email(),
                     ])->columns(2),
             ]);
     }
@@ -89,6 +107,15 @@ class RegistrationResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->description(fn(Registration $record): string => "NIA: {$record->nia}"),
+
+                TextColumn::make('commission_type')
+                    ->label('Komisi')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'A' => 'info',
+                        'B' => 'success',
+                        default => 'gray',
+                    }),
                 
                 TextColumn::make('phone')
                     ->label('WhatsApp')
