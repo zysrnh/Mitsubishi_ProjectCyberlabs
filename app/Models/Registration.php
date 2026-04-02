@@ -13,7 +13,10 @@ class Registration extends Model
     use SoftDeletes, HasFactory;
 
     protected $fillable = [
+        'company_name',
+        'nia',
         'name',
+        'position',
         'email',
         'phone',
         'unique_code',
@@ -34,7 +37,6 @@ class Registration extends Model
 
     protected $appends = [
         'qr_url',
-        'sim_photo_url', // ✅ TAMBAHAN BARU
     ];
 
     // ==================== AUTO GENERATE UNIQUE CODE ====================
@@ -79,53 +81,6 @@ class Registration extends Model
                 ? Storage::disk('public')->path($this->qr_path)
                 : null
         );
-    }
-
-    // ✅ TAMBAHAN BARU - SIM PHOTO URL
-    protected function simPhotoUrl(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => isset($this->extras['sim_photo']) && $this->extras['sim_photo']
-                ? asset('storage/' . $this->extras['sim_photo'])
-                : null
-        );
-    }
-
-    // ✅ TAMBAHAN BARU - SIM PHOTO FULL PATH
-    protected function simPhotoFullPath(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => isset($this->extras['sim_photo']) && $this->extras['sim_photo']
-                ? Storage::disk('public')->path($this->extras['sim_photo'])
-                : null
-        );
-    }
-
-    // ==================== MITSUBISHI DATA ACCESSORS ====================
-    public function getVehicleAttribute()
-    {
-        return $this->extras['vehicle'] ?? null;
-    }
-
-    public function getDealerBranchAttribute()
-    {
-        return $this->extras['dealer_branch'] ?? null;
-    }
-
-    public function getAssistantSalesAttribute()
-    {
-        return $this->extras['assistant_sales'] ?? null;
-    }
-
-    public function getDealerAttribute()
-    {
-        return $this->extras['dealer'] ?? null;
-    }
-
-    // ✅ TAMBAHAN BARU - SIM PHOTO ACCESSOR
-    public function getSimPhotoAttribute()
-    {
-        return $this->extras['sim_photo'] ?? null;
     }
 
     // ==================== HELPER METHODS ====================

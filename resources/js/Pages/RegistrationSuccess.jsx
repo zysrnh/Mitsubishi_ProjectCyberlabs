@@ -1,217 +1,148 @@
 import { Head, usePage } from "@inertiajs/react";
-import { useToast } from "@/hooks";
-import { Footer } from "@/components/layouts";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock } from "@fortawesome/free-solid-svg-icons";
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 
-
-const SuccessMessage = ({ registrationType, registration }) => {
-  const showIdCardInfo =
-    registrationType === "vip" || registrationType === "karang_taruna";
-
-  const needsAdminVerification =
-    registrationType === "umum" || registrationType === "karang_taruna";
-
+const SuccessMessage = ({ registration }) => {
   return (
     <div className="w-full max-w-xl space-y-6 text-center">
       <div
-        className="rounded-2xl p-8 mb-6"
+        className="rounded-2xl p-8 mb-6 bg-blue-50 border border-blue-100"
         style={{
-          backgroundColor: "rgba(200, 16, 46, 0.05)",
-          border: "1px solid rgba(200, 16, 46, 0.2)",
+          backgroundColor: "rgba(42, 52, 141, 0.05)",
+          border: "1px solid rgba(42, 52, 141, 0.2)",
         }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-16 w-16 mx-auto mb-4 primary-text"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
+        <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-blue-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12 text-[#2A348D]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
 
-        <p className="text-xl md:text-2xl font-bold mb-3 primary-text">
+        <p className="text-xl md:text-2xl font-bold mb-3 text-[#2A348D]">
           Registrasi Sukses!
         </p>
 
-        <p className="text-gray-600">
-          QR Code akan dikirimkan melalui WhatsApp Anda.
+        <p className="text-slate-600">
+          QR Code pendaftaran Anda telah berhasil dibuat dan dikirimkan melalui WhatsApp.
         </p>
       </div>
 
       {/* Show QR result if available */}
       {registration?.qr_url && (
-        <div className="rounded-xl p-6 bg-white shadow-md" style={{ border: "2px solid rgba(200, 16, 46, 0.2)" }}>
-          <p className="text-sm font-semibold mb-4 primary-text">QR Code Anda</p>
-          <div className="bg-white p-4 rounded-lg inline-block">
-            <img src={registration.qr_url} alt="QR Code" className="w-48 h-48 mx-auto" onError={e => {e.target.onerror=null;e.target.src='/images/no-qr.png';}} />
+        <div className="rounded-2xl p-8 bg-white shadow-xl border border-slate-100 transform transition-all hover:scale-[1.02]">
+          <p className="text-sm font-semibold mb-6 text-[#2A348D] uppercase tracking-wider">QR Code Pendaftaran</p>
+          <div className="bg-slate-50 p-6 rounded-2xl inline-block mb-4">
+            <img 
+              src={registration.qr_url} 
+              alt="QR Code" 
+              className="w-48 h-48 mx-auto mix-blend-multiply" 
+              onError={e => {e.target.onerror=null;e.target.src='/images/no-qr.png';}} 
+            />
           </div>
-          <p className="text-xs text-gray-500 mt-3 mb-3">
-            Kode Unik: <span className="font-bold primary-text">{registration?.unique_code}</span>
-          </p>
+          <div className="space-y-1 mb-6">
+            <p className="text-xs text-slate-400">Kode Unik Anda</p>
+            <p className="text-lg font-bold text-[#2A348D] tracking-widest">{registration?.unique_code}</p>
+          </div>
           <a
             href={registration.qr_url}
-            download={`QR-${registration?.unique_code}.png`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
-            style={{ backgroundColor: "#C8102E" }}
+            download={`QR-ASITA-${registration?.unique_code}.png`}
+            className="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl text-white font-semibold transition-all hover:brightness-110 shadow-lg"
+            style={{ backgroundColor: "#2A348D" }}
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
             Download QR Code
           </a>
         </div>
       )}
 
-      {needsAdminVerification && (
-        <div
-          className="rounded-xl p-5 text-left"
-          style={{
-            backgroundColor: "#f1f5f9",
-            borderLeft: "4px solid #C8102E",
-          }}
-        >
-          <p className="text-sm font-semibold mb-2 primary-text flex items-center">
-            <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
-            QR Code telah dikirim!
-          </p>
+      <div className="rounded-xl p-5 text-left bg-slate-50 border-l-4 border-[#2A348D]">
+        <p className="text-sm font-semibold mb-2 text-[#2A348D] flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Informasi Penting
+        </p>
 
-          <p className="text-sm text-gray-600">
-            QR Code telah dikirimkan ke WhatsApp Anda. Pastikan nomor WhatsApp yang
-            Anda daftarkan sudah benar dan aktif.
-          </p>
-        </div>
-      )}
-
-      {showIdCardInfo && (
-        <div
-          className="rounded-xl p-5 text-left"
-          style={{
-            backgroundColor: "#f8fafc",
-            borderLeft: "4px solid #C8102E",
-          }}
-        >
-          <p className="text-sm font-semibold mb-2 primary-text">
-            📋 Informasi Pengambilan ID Card
-          </p>
-          <p className="text-sm text-gray-600">
-            Pengambilan ID Card dapat dilakukan{" "}
-            <strong>H-1 sebelum acara</strong> di lokasi acara.
-          </p>
-        </div>
-      )}
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Silakan tunjukkan QR Code ini kepada petugas di meja registrasi saat tiba di lokasi acara. Salinan QR Code juga telah dikirimkan ke nomor WhatsApp <strong>{registration.phone}</strong>.
+        </p>
+      </div>
     </div>
   );
 };
 
 export default function RegistrationSuccess({
-  is_approved,
-  images,
-  qr_full_path,
   registration,
 }) {
-  const { flash } = usePage().props;
-
-  useToast(flash?.info);
-
-  const registrationType = registration?.extras?.type || "umum";
-
   return (
     <>
-      <Head title="Registration - Success" />
+      <Head title="Registration Success - ASITA Meeting" />
 
-      <div className="min-h-screen gradient-bg flex flex-col">
-        <main className="flex-1 flex flex-col items-center px-6 py-10">
-          {/* Logo Mitsubishi */}
-          <div className="mb-8 animate-logo">
-            <img
-              src="/images/mitsubishi-logo.png"
-              alt="Mitsubishi Motors Logo"
-              className="h-20 md:h-24 mx-auto object-contain"
-            />
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        {/* Decorative Header */}
+        <div className="bg-[#2A348D] h-64 w-full relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+          
+          <div className="relative z-10 flex flex-col items-center justify-center h-full pt-8">
+             <div className="bg-white p-3 rounded-xl shadow-lg mb-4">
+                <img
+                  src="/images/Asitajpeg-removebg-preview.png"
+                  alt="ASITA Logo"
+                  className="h-12 object-contain"
+                />
+             </div>
+             <h2 className="text-white text-2xl font-bold tracking-tight px-4 text-center">
+                REGISTRASI BERHASIL
+             </h2>
           </div>
+        </div>
 
-          <h2 className="text-2xl md:text-3xl font-bold mb-10 animate-title text-center black-text">
-            Registrasi Berhasil
-          </h2>
-
-          <div className="w-full max-w-3xl mb-12 animate-grid">
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-              <div className="flex justify-center">
-                <SuccessMessage registrationType={registrationType} registration={registration} />
-              </div>
+        <main className="flex-1 px-4 -mt-16 pb-12 relative z-20">
+          <div className="max-w-xl mx-auto">
+            <SuccessMessage registration={registration} />
+            
+            <div className="mt-8 text-center">
+               <a 
+                href={route('asita.show_form')} 
+                className="text-slate-400 hover:text-[#2A348D] transition-colors text-sm font-medium"
+               >
+                 Kembali ke Beranda
+               </a>
             </div>
           </div>
         </main>
 
-        <Footer />
+        <footer className="py-6 text-center text-slate-400 text-xs border-t border-slate-200">
+          © {new Date().getFullYear()} ASITA Meeting. All rights reserved.
+        </footer>
       </div>
 
-      <style jsx>{`
-        @font-face {
-          font-family: "mmcoffice";
-          src: url("/fonts/mmcoffice-regular.ttf") format("truetype");
-          font-weight: 400;
-        }
-
-        @font-face {
-          font-family: "mmcoffice";
-          src: url("/fonts/mmcoffice-bold.ttf") format("truetype");
-          font-weight: 700;
-        }
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
         * {
-          font-family: "mmcoffice", sans-serif;
-        }
-
-        .primary-text {
-          color: #c8102e;
-        }
-
-        .black-text {
-          color: #000000;
-        }
-
-        .gradient-bg {
-          background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          font-family: 'Outfit', sans-serif;
         }
 
         @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
         }
 
-        .animate-logo {
-          animation: scaleIn 0.6s ease-out;
-        }
-
-        .animate-title {
-          animation: fadeInUp 0.8s ease-out 0.2s both;
-        }
-
-        .animate-grid {
-          animation: fadeInUp 1s ease-out 0.4s both;
+        main {
+          animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </>
